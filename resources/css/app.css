@@ -8,4 +8,124 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Custom Colors */
+    --color-secondary-fixed: #dae2fd;
+    --color-surface-container-highest: #e4e1ee;
+    --color-primary: #3525cd;
+    --color-on-tertiary-container: #ffd2be;
+    --color-primary-fixed: #e2dfff;
+    --color-tertiary: #7e3000;
+    --color-surface-container: #f0ecf9;
+    --color-error: #ba1a1a;
+    --color-secondary-fixed-dim: #bec6e0;
+    --color-border-dark: #1e293b;
+    --color-on-primary: #ffffff;
+    --color-surface-bright: #fcf8ff;
+    --color-on-secondary-fixed: #131b2e;
+    --color-primary-container: #4f46e5;
+    --color-secondary: #565e74;
+    --color-inverse-surface: #302f39;
+    --color-error-container: #ffdad6;
+    --color-border-light: #e2e8f0;
+    --color-surface-container-high: #eae6f4;
+    --color-on-tertiary-fixed-variant: #7b2f00;
+    --color-inverse-on-surface: #f3effc;
+    --color-on-background: #1b1b24;
+    --color-surface-hover: #f8fafc;
+    --color-inverse-primary: #c3c0ff;
+    --color-on-error-container: #93000a;
+    --color-surface-container-lowest: #ffffff;
+    --color-on-secondary: #ffffff;
+    --color-on-secondary-container: #5c647a;
+    --color-on-surface-variant: #464555;
+    --color-surface-container-low: #f5f2ff;
+    --color-outline: #777587;
+    --color-on-secondary-fixed-variant: #3f465c;
+    --color-background-light: #ffffff;
+    --color-background-dark: #0f172a;
+    --color-surface: #fcf8ff;
+    --color-tertiary-fixed-dim: #ffb695;
+    --color-on-surface: #1b1b24;
+    --color-tertiary-fixed: #ffdbcc;
+    --color-primary-fixed-dim: #c3c0ff;
+    --color-on-primary-fixed-variant: #3323cc;
+    --color-outline-variant: #c7c4d8;
+    --color-surface-tint: #4d44e3;
+    --color-on-tertiary: #ffffff;
+    --color-on-primary-container: #dad7ff;
+    --color-on-tertiary-fixed: #351000;
+    --color-secondary-container: #dae2fd;
+    --color-surface-dim: #dcd8e5;
+    --color-on-primary-fixed: #0f0069;
+    --color-tertiary-container: #a44100;
+    --color-on-error: #ffffff;
+    --color-surface-variant: #e4e1ee;
+    --color-background: #fcf8ff;
+
+    /* Custom Spacing */
+    --spacing-margin-desktop: 2rem;
+    --spacing-stack-lg: 2rem;
+    --spacing-stack-sm: 0.5rem;
+    --spacing-container-max: 1280px;
+    --spacing-margin-mobile: 1rem;
+    --spacing-stack-md: 1rem;
+    --spacing-gutter: 1.5rem;
+
+    /* Custom Font Families */
+    --font-body-lg: 'Inter', sans-serif;
+    --font-label-sm: 'Inter', sans-serif;
+    --font-body-md: 'Inter', sans-serif;
+    --font-headline-lg: 'Inter', sans-serif;
+    --font-label-md: 'Inter', sans-serif;
+    --font-headline-md: 'Inter', sans-serif;
+    --font-headline-xl: 'Inter', sans-serif;
+    --font-headline-xl-mobile: 'Inter', sans-serif;
+    --font-headline-sm: 'Inter', sans-serif;
+
+    /* Custom Font Sizes with Line Heights & Font Weights */
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 28px;
+    --text-body-lg--font-weight: 400;
+
+    --text-label-sm: 12px;
+    --text-label-sm--line-height: 16px;
+    --text-label-sm--letter-spacing: 0.05em;
+    --text-label-sm--font-weight: 500;
+
+    --text-body-md: 16px;
+    --text-body-md--line-height: 24px;
+    --text-body-md--font-weight: 400;
+
+    --text-headline-lg: 24px;
+    --text-headline-lg--line-height: 32px;
+    --text-headline-lg--letter-spacing: -0.01em;
+    --text-headline-lg--font-weight: 600;
+
+    --text-label-md: 14px;
+    --text-label-md--line-height: 20px;
+    --text-label-md--font-weight: 500;
+
+    --text-headline-md: 20px;
+    --text-headline-md--line-height: 28px;
+    --text-headline-md--font-weight: 600;
+
+    --text-headline-xl: 36px;
+    --text-headline-xl--line-height: 44px;
+    --text-headline-xl--letter-spacing: -0.02em;
+    --text-headline-xl--font-weight: 700;
+
+    --text-headline-xl-mobile: 28px;
+    --text-headline-xl-mobile--line-height: 34px;
+    --text-headline-xl-mobile--letter-spacing: -0.02em;
+    --text-headline-xl-mobile--font-weight: 700;
+
+    --text-headline-sm: 16px;
+    --text-headline-sm--line-height: 24px;
+    --text-headline-sm--font-weight: 600;
 }
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
