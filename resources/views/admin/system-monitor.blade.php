@@ -153,7 +153,7 @@
                 <p class="text-on-surface-variant dark:text-outline mt-2">Real-time infrastructure monitoring and node status.</p>
             </div>
             <div class="flex gap-stack-sm items-center">
-                <span id="maintenance-banner" class="hidden px-3 py-1 rounded-full bg-amber-500 text-white font-label-sm flex items-center gap-2">
+                <span id="maintenance-banner" class="{{ $isMaintenanceActive ? '' : 'hidden' }} px-3 py-1 rounded-full bg-amber-500 text-white font-label-sm flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                     MAINTENANCE ACTIVE
                 </span>
@@ -270,9 +270,9 @@
                         </div>
                     </div>
                     
-                    <button id="maintenance-toggle-btn" class="w-full mt-4 py-3 px-4 border border-tertiary text-tertiary dark:text-amber-500 dark:border-amber-500 font-bold font-label-md rounded-lg hover:bg-tertiary hover:text-white dark:hover:bg-amber-500 dark:hover:text-black transition-all flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined" data-icon="lock_open">lock_open</span>
-                        <span id="maintenance-btn-text">ENTER MAINTENANCE MODE</span>
+                    <button id="maintenance-toggle-btn" class="w-full mt-4 py-3 px-4 border {{ $isMaintenanceActive ? 'border-rose-500 bg-rose-500 text-white hover:bg-rose-600' : 'border-tertiary text-tertiary dark:text-amber-500 dark:border-amber-500 hover:bg-tertiary hover:text-white dark:hover:bg-amber-500 dark:hover:text-black' }} font-bold font-label-md rounded-lg transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined" data-icon="{{ $isMaintenanceActive ? 'lock' : 'lock_open' }}">{{ $isMaintenanceActive ? 'lock' : 'lock_open' }}</span>
+                        <span id="maintenance-btn-text">{{ $isMaintenanceActive ? 'EXIT MAINTENANCE MODE' : 'ENTER MAINTENANCE MODE' }}</span>
                     </button>
                 </div>
 
@@ -605,7 +605,7 @@
     const closeMaintenanceModal = document.getElementById('close-maintenance-modal');
     const maintenanceBanner = document.getElementById('maintenance-banner');
 
-    let isMaintenanceActive = false;
+    let isMaintenanceActive = @json($isMaintenanceActive);
 
     maintenanceBtn.addEventListener('click', () => {
         maintenanceModal.classList.remove('hidden');
@@ -620,22 +620,47 @@
     });
 
     confirmMaintenance.addEventListener('click', () => {
-        isMaintenanceActive = !isMaintenanceActive;
         maintenanceModal.classList.add('hidden');
 
-        if (isMaintenanceActive) {
-            maintenanceBtnText.textContent = 'EXIT MAINTENANCE MODE';
-            maintenanceIcon.textContent = 'lock';
-            maintenanceBtn.className = 'w-full mt-4 py-3 px-4 border border-rose-500 bg-rose-500 text-white font-bold font-label-md rounded-lg hover:bg-rose-600 transition-all flex items-center justify-center gap-2';
-            maintenanceBanner.classList.remove('hidden');
-            showToast('Portal has been put in MAINTENANCE MODE', 'error');
-        } else {
-            maintenanceBtnText.textContent = 'ENTER MAINTENANCE MODE';
-            maintenanceIcon.textContent = 'lock_open';
-            maintenanceBtn.className = 'w-full mt-4 py-3 px-4 border border-tertiary text-tertiary dark:text-amber-500 dark:border-amber-500 font-bold font-label-md rounded-lg hover:bg-tertiary hover:text-white dark:hover:bg-amber-500 dark:hover:text-black transition-all flex items-center justify-center gap-2';
-            maintenanceBanner.classList.add('hidden');
-            showToast('Portal is now publically ONLINE', 'success');
-        }
+        fetch('/admin/maintenance/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                isMaintenanceActive = data.maintenance_active;
+
+                if (isMaintenanceActive) {
+                    maintenanceBtnText.textContent = 'EXIT MAINTENANCE MODE';
+                    maintenanceIcon.textContent = 'lock';
+                    maintenanceIcon.setAttribute('data-icon', 'lock');
+                    maintenanceBtn.className = 'w-full mt-4 py-3 px-4 border border-rose-500 bg-rose-500 text-white font-bold font-label-md rounded-lg hover:bg-rose-600 transition-all flex items-center justify-center gap-2';
+                    maintenanceBanner.classList.remove('hidden');
+                    showToast(data.message || 'Portal has been put in MAINTENANCE MODE', 'error');
+                } else {
+                    maintenanceBtnText.textContent = 'ENTER MAINTENANCE MODE';
+                    maintenanceIcon.textContent = 'lock_open';
+                    maintenanceIcon.setAttribute('data-icon', 'lock_open');
+                    maintenanceBtn.className = 'w-full mt-4 py-3 px-4 border border-tertiary text-tertiary dark:text-amber-500 dark:border-amber-500 font-bold font-label-md rounded-lg hover:bg-tertiary hover:text-white dark:hover:bg-amber-500 dark:hover:text-black transition-all flex items-center justify-center gap-2';
+                    maintenanceBanner.classList.add('hidden');
+                    showToast(data.message || 'Portal is now publicly ONLINE', 'success');
+                }
+            } else {
+                showToast(data.message || 'Failed to toggle maintenance mode', 'error');
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            showToast('An error occurred while toggling maintenance mode', 'error');
+        });
     });
 
     // Resource metrics fluctuation simulation

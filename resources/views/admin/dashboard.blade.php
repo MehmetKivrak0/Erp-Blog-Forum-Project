@@ -193,20 +193,20 @@
                     </div>
                     <div>
                         <p class="font-label-md text-label-md text-on-surface-variant dark:text-outline">Total Users</p>
-                        <h3 id="stat-total-users" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">12,482</h3>
+                        <h3 id="stat-total-users" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">{{ number_format($totalUsers) }}</h3>
                     </div>
                 </div>
                 <!-- Metric Card 2 -->
                 <div onclick="window.location.href='{{ route('admin.moderator') }}'" class="glass-card p-6 rounded-xl flex flex-col justify-between group hover:border-error transition-colors cursor-pointer">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="p-2 bg-error-container text-error rounded-lg dark:bg-red-950 dark:text-red-400">
+                        <div class="p-2 bg-error-container text-error rounded-lg dark:bg-red-950/40 dark:text-red-400">
                             <span class="material-symbols-outlined" data-icon="report">report</span>
                         </div>
                         <span class="text-label-sm font-bold text-on-surface-variant dark:text-outline">Active Now</span>
                     </div>
                     <div>
                         <p class="font-label-md text-label-md text-on-surface-variant dark:text-outline">Pending Reports</p>
-                        <h3 class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">14</h3>
+                        <h3 id="stat-pending-reports" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">{{ $pendingReports }}</h3>
                     </div>
                 </div>
                 <!-- Metric Card 3 -->
@@ -219,7 +219,7 @@
                     </div>
                     <div>
                         <p class="font-label-md text-label-md text-on-surface-variant dark:text-outline">Active Discussions</p>
-                        <h3 id="stat-active-disc" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">1,054</h3>
+                        <h3 id="stat-active-disc" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">{{ number_format($activeDiscussions) }}</h3>
                     </div>
                 </div>
                 <!-- Metric Card 4 -->
@@ -232,7 +232,7 @@
                     </div>
                     <div>
                         <p class="font-label-md text-label-md text-on-surface-variant dark:text-outline">Solution Rate</p>
-                        <h3 id="stat-sol-rate" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">94%</h3>
+                        <h3 id="stat-sol-rate" class="font-headline-lg text-headline-lg font-bold text-on-background dark:text-white">{{ $solutionRate }}%</h3>
                     </div>
                 </div>
             </div>
@@ -273,29 +273,50 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-border-light dark:divide-border-dark" id="user-table-body">
-                            <!-- User Row 1 -->
-                            <tr class="hover:bg-surface-hover dark:hover:bg-slate-800/45 transition-colors">
+                            @foreach($users as $user)
+                            @php
+                                $roleVal = $user->role->value ?? $user->role;
+                                $displayRole = 'Premium Member';
+                                if ($roleVal === 'moderator') {
+                                    $displayRole = 'Moderator';
+                                } elseif ($roleVal === 'developer') {
+                                    $displayRole = 'Developer';
+                                } elseif ($roleVal === 'admin') {
+                                    $displayRole = 'Admin';
+                                }
+                            @endphp
+                            <tr class="hover:bg-surface-hover dark:hover:bg-slate-800/45 transition-colors" data-user-id="{{ $user->id }}">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <img alt="User Avatar" class="w-8 h-8 rounded-full" data-alt="A detailed professional headshot of a young software developer with glasses, wearing a charcoal hoodie..." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCktVN-BTw7MJKQJW4Bvuvr-BCEM2JLujP12z1jQVIPv5hjnYfKL8epeWoDDyhqm92R74e1-muufnh-PE65GxJPQ-tyR8q7Unfl6K9oOw8mrCMd91EE85uVfhpiZfx1M_WlFP3zhLXCNLHcNrOKWCbN6_KhzzAl52kZjsWJOaF98hikd91snT1DbjK93P2ZOF33FXelpMeUDxLYRT-Ui8eVJgjYy4lfMi_Y1dDERiG7Zx4svVVbfGHKVgug-TTZMbTXqlmzn9s2Y6Q"/>
+                                        <img alt="{{ $user->name }}" class="w-8 h-8 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode($user->name) }}&color=7F9CF5&background=EBF4FF"/>
                                         <div>
-                                            <p class="font-label-md text-label-md text-on-background dark:text-white">alex_coder92</p>
-                                            <p class="text-[12px] text-on-surface-variant dark:text-outline">alex@devnexus.io</p>
+                                            <p class="font-label-md text-label-md text-on-background dark:text-white">{{ $user->name }}</p>
+                                            <p class="text-[12px] text-on-surface-variant dark:text-outline">{{ $user->email }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400 rounded-full text-[12px] font-bold">Active</span>
+                                    @if($user->status === 'active')
+                                        <span class="status-badge px-2 py-1 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400 rounded-full text-[12px] font-bold">Active</span>
+                                    @elseif($user->status === 'suspended')
+                                        <span class="status-badge px-2 py-1 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 rounded-full text-[12px] font-bold">Suspended</span>
+                                    @else
+                                        <span class="status-badge px-2 py-1 bg-surface-container-highest dark:bg-slate-800 text-on-surface-variant dark:text-outline rounded-full text-[12px] font-bold">Inactive</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="font-label-sm text-label-sm text-on-surface dark:text-white">Premium Member</span>
+                                    <span class="role-badge font-label-sm text-label-sm text-on-surface dark:text-white capitalize">{{ $displayRole }}</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <p class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline">Joined 2d ago</p>
+                                    <p class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline">Joined {{ $user->created_at->diffForHumans() }}</p>
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2 items-center">
-                                        <button class="permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors">Grant Permission</button>
+                                        @if($roleVal === 'user')
+                                            <button class="permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors">Grant Permission</button>
+                                        @else
+                                            <button class="permission-toggle-btn px-3 py-1.5 bg-error-container text-error rounded-lg text-label-sm font-bold hover:opacity-80 transition-colors">Revoke Permission</button>
+                                        @endif
                                         <div class="relative">
                                             <button class="more-actions-btn p-1.5 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-white">
                                                 <span class="material-symbols-outlined">more_vert</span>
@@ -304,91 +325,22 @@
                                             <div class="more-actions-dropdown hidden absolute right-0 mt-1 w-32 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg shadow-lg z-50 py-1 text-left">
                                                 <a href="{{ route('profile') }}" class="block px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">View Profile</a>
                                                 <button class="edit-role-btn w-full text-left px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">Edit Role</button>
-                                                <button class="suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-red-50 dark:hover:bg-red-950/20">Suspend</button>
+                                                @if($user->status === 'suspended')
+                                                    <button class="suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20" data-status="active">Activate</button>
+                                                @else
+                                                    <button class="suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-red-50 dark:hover:bg-red-950/20" data-status="suspended">Suspend</button>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- User Row 2 -->
-                            <tr class="hover:bg-surface-hover dark:hover:bg-slate-800/45 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <img alt="User Avatar" class="w-8 h-8 rounded-full" data-alt="A cinematic, high-quality headshot of a senior female cloud architect with an intelligent and serene expression..." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXrs6FOeJAuMQ5yAnL2LEuA8F3USqB7nZuw8efjoka8EKhdarWQbJP00TUM6GnUU_G-kVHptLY-xsK9guDT8vCIrmYxDLtYq49BydHXzHMMjtsE-q5RI3I1UrXYRdAA74ar0kzHtkHgVIUIDgF-cnAxwQU9gmjsak3O_pCyaXBv9X2ALbXzyGE7TPPVEz91qgoXnlqTulqCqaPVO-uyJG7U84Lq2T5N1dHjClgjCrXtYIfGgUbgCL1dXRCO3HFq7XqFxocc9bG-JE"/>
-                                        <div>
-                                            <p class="font-label-md text-label-md text-on-background dark:text-white">sarah_ops</p>
-                                            <p class="text-[12px] text-on-surface-variant dark:text-outline">sarah.j@techcloud.com</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400 rounded-full text-[12px] font-bold">Active</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="font-label-sm text-label-sm text-on-surface dark:text-white">Moderator</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <p class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline">Joined 1y ago</p>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2 items-center">
-                                        <button class="permission-toggle-btn px-3 py-1.5 bg-error-container text-error rounded-lg text-label-sm font-bold hover:opacity-80 transition-colors">Revoke Permission</button>
-                                        <div class="relative">
-                                            <button class="more-actions-btn p-1.5 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-white">
-                                                <span class="material-symbols-outlined">more_vert</span>
-                                            </button>
-                                            <!-- Actions Dropdown -->
-                                            <div class="more-actions-dropdown hidden absolute right-0 mt-1 w-32 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg shadow-lg z-50 py-1 text-left">
-                                                <a href="{{ route('profile') }}" class="block px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">View Profile</a>
-                                                <button class="edit-role-btn w-full text-left px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">Edit Role</button>
-                                                <button class="suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-red-50 dark:hover:bg-red-950/20">Suspend</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- User Row 3 -->
-                            <tr class="hover:bg-surface-hover dark:hover:bg-slate-800/45 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <img alt="User Avatar" class="w-8 h-8 rounded-full" data-alt="A professional studio portrait of a diverse male developer in his 30s with a creative and approachable look..." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8i2MPF-ImrKLq_lTy2rXtgpLvZCVK0RgBs5TdP1lKQoM6VqhgUZV1zQfOBWAoDtBg-V_9Mjj4Grl5DSp4tcNdejZjJ0Gd_sqOE9RAiTaRAc8NbV5t6JId9Io04V0dqTOgvPjIEZDRxVsbcozH2zHWUi21FxhM3z5D-JzcynozZOIZx1_d8wCpSnzoSSj_C9oCNb2ZtqNBBIWwEWyrY4mgJ_ufOTfmyzy-gspnfLYd14SyOC7DDGjOU_APYiraJTeJad8o_ZdBGSk"/>
-                                        <div>
-                                            <p class="font-label-md text-label-md text-on-background dark:text-white">m_ross_dev</p>
-                                            <p class="text-[12px] text-on-surface-variant dark:text-outline">mike@ross.dev</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-surface-container-highest dark:bg-slate-800 text-on-surface-variant dark:text-outline rounded-full text-[12px] font-bold">Inactive</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="font-label-sm text-label-sm text-on-surface dark:text-white">Developer</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <p class="font-label-sm text-label-sm text-on-surface-variant dark:text-outline">Joined 5m ago</p>
-                                </td>
-                                <td class="px-6 py-4 text-right">
-                                    <div class="flex justify-end gap-2 items-center">
-                                        <button class="permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors">Grant Permission</button>
-                                        <div class="relative">
-                                            <button class="more-actions-btn p-1.5 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-white">
-                                                <span class="material-symbols-outlined">more_vert</span>
-                                            </button>
-                                            <!-- Actions Dropdown -->
-                                            <div class="more-actions-dropdown hidden absolute right-0 mt-1 w-32 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-lg shadow-lg z-50 py-1 text-left">
-                                                <a href="{{ route('profile') }}" class="block px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">View Profile</a>
-                                                <button class="edit-role-btn w-full text-left px-3 py-1.5 text-[12px] dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">Edit Role</button>
-                                                <button class="suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-red-50 dark:hover:bg-red-950/20">Suspend</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
                 <div class="p-4 border-t border-border-light dark:border-border-dark flex justify-between items-center bg-surface-container-lowest dark:bg-slate-900/20">
-                    <p class="text-label-sm text-on-surface-variant dark:text-outline">Showing <span id="showing-count">3</span> of 12,482 users</p>
+                    <p class="text-label-sm text-on-surface-variant dark:text-outline">Showing <span id="showing-count">{{ count($users) }}</span> of {{ $totalUsers }} users</p>
                     <div class="flex gap-2">
                         <button onclick="showToast('You are on the first page')" class="p-2 border border-outline-variant dark:border-slate-700 rounded-lg disabled:opacity-50" disabled="">
                             <span class="material-symbols-outlined">chevron_left</span>
@@ -426,6 +378,34 @@
                 <!-- Appended dynamically -->
             </ul>
         </div>
+    </div>
+</div>
+
+<!-- Edit Role Modal -->
+<div id="role-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
+        <button id="close-role-modal" class="absolute top-4 right-4 text-on-surface-variant hover:text-on-surface dark:text-outline dark:hover:text-white">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <h3 class="font-headline-md text-headline-md font-bold text-on-background dark:text-white mb-4">Edit User Role</h3>
+        <p class="text-body-md text-on-surface-variant dark:text-outline mb-4">Select a new role for <span id="role-modal-username" class="font-bold"></span>:</p>
+        
+        <form id="role-form" class="space-y-4">
+            <input type="hidden" id="role-modal-user-id" value="">
+            <div>
+                <label for="role-select" class="block text-label-md font-bold text-on-surface-variant dark:text-outline mb-2">Role</label>
+                <select id="role-select" class="w-full p-3 bg-surface-container-low border border-outline-variant dark:border-slate-700 rounded-lg text-body-md focus:outline-none focus:border-primary dark:bg-slate-900 dark:text-white">
+                    <option value="user">User (Premium Member)</option>
+                    <option value="moderator">Moderator</option>
+                    <option value="developer">Developer</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" id="cancel-role" class="px-4 py-2 border border-outline dark:border-slate-700 rounded-lg text-label-md font-bold text-on-background dark:text-white hover:bg-surface-hover dark:hover:bg-slate-800">Cancel</button>
+                <button type="submit" id="confirm-role" class="px-4 py-2 bg-primary text-on-primary rounded-lg text-label-md font-bold hover:opacity-90">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -656,21 +636,49 @@
         showToast('All notifications cleared');
     });
 
-    // Action button toggles inside directory table
+    // Action button toggles inside directory table (Grant/Revoke staff permission)
     document.querySelectorAll('.permission-toggle-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const row = btn.closest('tr');
+            const userId = row.getAttribute('data-user-id');
             const username = row.querySelector('.font-label-md').textContent.trim();
             const isRevoke = btn.textContent.includes('Revoke');
-            if (isRevoke) {
-                btn.textContent = 'Grant Permission';
-                btn.className = 'permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors';
-                showToast(`Revoked specialized roles/permissions from: ${username}`, 'error');
-            } else {
-                btn.textContent = 'Revoke Permission';
-                btn.className = 'permission-toggle-btn px-3 py-1.5 bg-error-container text-error rounded-lg text-label-sm font-bold hover:opacity-80 transition-colors';
-                showToast(`Successfully granted administrative permissions to: ${username}`, 'success');
-            }
+            const targetRole = isRevoke ? 'user' : 'moderator';
+
+            btn.disabled = true;
+            fetch(`/admin/users/${userId}/role`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ role: targetRole })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    if (targetRole === 'user') {
+                        btn.textContent = 'Grant Permission';
+                        btn.className = 'permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors';
+                        row.querySelector('.role-badge').textContent = 'Premium Member';
+                        showToast(data.message, 'error');
+                    } else {
+                        btn.textContent = 'Revoke Permission';
+                        btn.className = 'permission-toggle-btn px-3 py-1.5 bg-error-container text-error rounded-lg text-label-sm font-bold hover:opacity-80 transition-colors';
+                        row.querySelector('.role-badge').textContent = 'Moderator';
+                        showToast(data.message, 'success');
+                    }
+                } else {
+                    showToast(data.message || 'An error occurred.', 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                console.error(err);
+                showToast('Request failed.', 'error');
+            });
         });
     });
 
@@ -690,19 +698,145 @@
         document.querySelectorAll('.more-actions-dropdown').forEach(d => d.classList.add('hidden'));
     });
 
+    // Suspend / Activate account
     document.querySelectorAll('.suspend-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const row = btn.closest('tr');
+            const userId = row.getAttribute('data-user-id');
             const username = row.querySelector('.font-label-md').textContent.trim();
-            showToast(`Account suspended: ${username}`, 'error');
+            const targetStatus = btn.getAttribute('data-status'); // 'suspended' or 'active'
+            
+            btn.disabled = true;
+            fetch(`/admin/users/${userId}/status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: targetStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    const badge = row.querySelector('.status-badge');
+                    if (targetStatus === 'suspended') {
+                        badge.className = 'status-badge px-2 py-1 bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 rounded-full text-[12px] font-bold';
+                        badge.textContent = 'Suspended';
+                        btn.textContent = 'Activate';
+                        btn.className = 'suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20';
+                        btn.setAttribute('data-status', 'active');
+                        showToast(data.message, 'error');
+                    } else {
+                        badge.className = 'status-badge px-2 py-1 bg-green-100 dark:bg-green-950/40 text-green-700 dark:text-green-400 rounded-full text-[12px] font-bold';
+                        badge.textContent = 'Active';
+                        btn.textContent = 'Suspend';
+                        btn.className = 'suspend-btn w-full text-left px-3 py-1.5 text-[12px] text-error hover:bg-red-50 dark:hover:bg-red-950/20';
+                        btn.setAttribute('data-status', 'suspended');
+                        showToast(data.message, 'success');
+                    }
+                } else {
+                    showToast(data.message || 'An error occurred.', 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                console.error(err);
+                showToast('Request failed.', 'error');
+            });
         });
     });
+
+    // Edit Role Dialog handling
+    const roleModal = document.getElementById('role-modal');
+    const roleForm = document.getElementById('role-form');
+    const roleSelect = document.getElementById('role-select');
+    const roleModalUsername = document.getElementById('role-modal-username');
+    const roleModalUserId = document.getElementById('role-modal-user-id');
+    const closeRoleModal = document.getElementById('close-role-modal');
+    const cancelRole = document.getElementById('cancel-role');
 
     document.querySelectorAll('.edit-role-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const row = btn.closest('tr');
+            const userId = row.getAttribute('data-user-id');
             const username = row.querySelector('.font-label-md').textContent.trim();
-            showToast(`Role modification opened for: ${username}`);
+            const currentRoleText = row.querySelector('.role-badge').textContent.trim().toLowerCase();
+            
+            let roleVal = 'user';
+            if (currentRoleText === 'moderator') roleVal = 'moderator';
+            else if (currentRoleText === 'developer') roleVal = 'developer';
+            else if (currentRoleText === 'admin') roleVal = 'admin';
+
+            roleModalUsername.textContent = username;
+            roleModalUserId.value = userId;
+            roleSelect.value = roleVal;
+
+            roleModal.classList.remove('hidden');
+        });
+    });
+
+    const hideRoleModal = () => {
+        roleModal.classList.add('hidden');
+    };
+
+    closeRoleModal.addEventListener('click', hideRoleModal);
+    cancelRole.addEventListener('click', hideRoleModal);
+
+    roleForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const userId = roleModalUserId.value;
+        const selectedRole = roleSelect.value;
+        const confirmBtn = document.getElementById('confirm-role');
+        
+        confirmBtn.disabled = true;
+        fetch(`/admin/users/${userId}/role`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ role: selectedRole })
+        })
+        .then(res => res.json())
+        .then(data => {
+            confirmBtn.disabled = false;
+            hideRoleModal();
+            if (data.success) {
+                const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+                if (row) {
+                    const badge = row.querySelector('.role-badge');
+                    let displayRole = 'Premium Member';
+                    if (selectedRole === 'moderator') displayRole = 'Moderator';
+                    else if (selectedRole === 'developer') displayRole = 'Developer';
+                    else if (selectedRole === 'admin') displayRole = 'Admin';
+                    
+                    badge.textContent = displayRole;
+
+                    // Update the permission toggle button state
+                    const permBtn = row.querySelector('.permission-toggle-btn');
+                    if (permBtn) {
+                        if (selectedRole === 'user') {
+                            permBtn.textContent = 'Grant Permission';
+                            permBtn.className = 'permission-toggle-btn px-3 py-1.5 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-700 text-primary dark:text-primary-fixed-dim rounded-lg text-label-sm font-bold hover:bg-primary-fixed dark:hover:bg-slate-800 transition-colors';
+                        } else {
+                            permBtn.textContent = 'Revoke Permission';
+                            permBtn.className = 'permission-toggle-btn px-3 py-1.5 bg-error-container text-error rounded-lg text-label-sm font-bold hover:opacity-80 transition-colors';
+                        }
+                    }
+                }
+                showToast(data.message, 'success');
+            } else {
+                showToast(data.message || 'An error occurred.', 'error');
+            }
+        })
+        .catch(err => {
+            confirmBtn.disabled = false;
+            hideRoleModal();
+            console.error(err);
+            showToast('Request failed.', 'error');
         });
     });
 

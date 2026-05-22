@@ -357,117 +357,56 @@
 
 @push('scripts')
 <script>
-    // Mock Data Objects
-    let queueItems = [
-        {
-            id: 1,
-            author: 'j_dev88',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB0wnBplr9Q0XBFjFbPprpzKiqpKGrCXPGXuOaNY4Ov62pNAc8ZPtoqIoQIbKcQp-dlgvonMCR982z8h7YsYRzxtpvWMFrzoQoNCy-uHYO3ekL9MMh_oov2wC7Skj4zm8LNLjqdAVW11kaFICT5XupAQI-7GvREwK7RLyEDgt6AgAAj2Ktn7MwiJ2t4Ps5DONsI91Kc1Y_En-XrOH9lX315ASxKjNd8cT6wCuF-XFTjX05TqSF_KQIKzT7P7AuSMCMDfpH-FEDcbwc',
-            type: 'ARTICLE',
-            title: 'Mastering Rust Lifetimes: A Deep Dive',
-            excerpt: "Rust's ownership model is powerful but lifetimes can be tricky for newcomers...",
-            body: "Lifetimes are the compiler's way of ensuring that all references are valid and don't point to freed memory. In this article, we explore generic lifetime annotations, subtyping, and common lifetime patterns...",
-            priority: 'Medium',
-            time: '30 mins ago',
-            status: 'pending'
-        },
-        {
-            id: 2,
-            author: 'alice_coder',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuD-Rmszuse5dv0qrw7_IpCPvvvRALpK42jEaKxdhn8EzwTxhQffOcOBbOkrET4X4Og1XnqILv9uw5WsTOPuA2e-I_zC6IkIKOLSGF5PKtJhs6tQq802TSx0JeHPx5DIMEHmsh5YG1F7Ph0gXbS4hRenPkvg7S3u6RO8Vs0HQU0pRbEo1mjJchqXT8lUhqgmHpPYRtyhO9sq7HjMmF6iv4lTOpzMQNclGwoKkZkSkt3fNW_p6-x6RJHxOmJNgQBPbuRt1X7zYLNNXso',
-            type: 'FORUM POST',
-            title: 'Best practices for React 19 concurrent mode?',
-            excerpt: "I'm having issues with selective hydration in the new beta releases...",
-            body: "When enabling concurrent rendering and server-side components in React 19, selective hydration causes mismatch warnings on nested dynamic containers. Here is the reproduction stack...",
-            priority: 'High',
-            time: '2 hours ago',
-            status: 'pending'
-        },
-        {
-            id: 3,
-            author: 'bob_kubi',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCF8h-GwME2Gl8GYC4BeqiQRFSZQGEjkmKkRQh3LTwVXZEcIpaplVbI0g1d7mV0FuSy-PMqf0GZ0Dp6WbmqYEzx7qbJF45GT_1J6iORRhQtasx0FP7urAHrw70vq0FbTfJjBzYM8Gz2zxg19ferjS7E-WdIphbT9OKgOMNr5BcXvjIK57Ph6-wsmgQhEk2wafTRumETn8i-r5Z8-cGzAam3hBO3crL6Rnu41j59jqihKDtmZz146VD5geDqmUBnDvrN9HTjPDsrV_M',
-            type: 'ARTICLE',
-            title: 'Why Clean Code is a Myth',
-            excerpt: 'Controversial opinion: your perfectionism is killing the product...',
-            body: "We focus too much on abstractions and DRY patterns that make the code unreadable. Sometimes duplication is cheaper than the wrong abstraction. Let's look at real-world examples...",
-            priority: 'Medium',
-            time: '5 hours ago',
-            status: 'pending'
-        },
-        {
-            id: 4,
-            author: 'dev_dan',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZnlSW5qpwkQsb1yiGL07DnIpy4Wz8ZODYKnvZjMu7lt1vqP2N619I2aRl288YQyoroQh6_h0-a_fmoF5svBgKc7RWbXS7OPpRQbOEPtXOxELEItaJbOLrCaRsnd0pcBJM2qdybRC2XhfLwp4hob_MY-HvB2eyLs38p6EbLcI-M9XzJpKllxF-IZ-ajkZjDPEpxBbrmlpdHI2797Cha6oq8aw_Yl3a_0hjuR27m-PEuBbY5rGHHlUorAtEO0MnDPC8cv2mAVEkWzA',
-            type: 'ARTICLE',
-            title: 'Vite vs Webpack in 2024',
-            excerpt: 'A comprehensive benchmark of build tools for modern SPAs...',
-            body: "Vite uses ES modules during development and Rollup for production. Webpack compiles everything upfront. We measure cold starts, hot module replacement latency, and final asset size...",
-            priority: 'Low',
-            time: '1 day ago',
-            status: 'pending'
-        },
-        {
-            id: 5,
-            author: 'bob_kubi',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC7ijxosd5neyUqOETb3AEUyXgxLw4QgE021wtmPiF-MoOmj81bqMQGW2_fAB35EbVGUHXmMoQhbk954wXyEu9MHQQNvc_MFw5oBYDBoK7vLQSYs7UxHyF-CSXvP4rLMad9bes0WmXFW4HRW9pdsQiR1LMBEycIjpHidZwZF3sKLi8JAJML5V73G8H8b_mq7ZxJT1rszWGlDokyhAKsckHfqG2VAUboG8wQYF3thF4bf4xg4hp-PPyY9Aifnky1VzV2tpbSQL59vnM',
-            type: 'FORUM POST',
-            title: 'Why Clean Code is a Myth',
-            excerpt: 'Controversial opinion: your perfectionism is killing the product...',
-            body: "Duplicate forum thread containing the same content as the article above, possibly cross-posted.",
-            priority: 'Low',
-            time: '2 hours ago',
-            status: 'pending'
-        }
-    ];
+    // Dynamic Data from Backend
+    let queueItems = @json($pendingPosts->map(function ($post) {
+        return [
+            'id' => $post->id,
+            'author' => $post->user->name ?? 'Anonymous',
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=7F9CF5&background=EBF4FF',
+            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
+            'title' => $post->title,
+            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
+            'body' => $post->content,
+            'priority' => 'Medium',
+            'time' => $post->created_at->diffForHumans(),
+            'status' => 'pending'
+        ];
+    }));
 
-    let flaggedItems = [
-        {
-            id: 101,
-            author: 'spam_bot9',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAZnlSW5qpwkQsb1yiGL07DnIpy4Wz8ZODYKnvZjMu7lt1vqP2N619I2aRl288YQyoroQh6_h0-a_fmoF5svBgKc7RWbXS7OPpRQbOEPtXOxELEItaJbOLrCaRsnd0pcBJM2qdybRC2XhfLwp4hob_MY-HvB2eyLs38p6EbLcI-M9XzJpKllxF-IZ-ajkZjDPEpxBbrmlpdHI2797Cha6oq8aw_Yl3a_0hjuR27m-PEuBbY5rGHHlUorAtEO0MnDPC8cv2mAVEkWzA',
-            type: 'REPLY',
-            title: 'Reported comment in React 19 thread',
-            excerpt: 'Get rich quick scheme click link here www.scamsite.com...',
-            body: 'Click here to earn $5000 daily from home! Free registration!',
-            reason: 'Spam Link Promotion',
-            priority: 'High',
-            time: '10 mins ago',
-            status: 'flagged'
-        },
-        {
-            id: 102,
-            author: 'toxic_coder',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCF8h-GwME2Gl8GYC4BeqiQRFSZQGEjkmKkRQh3LTwVXZEcIpaplVbI0g1d7mV0FuSy-PMqf0GZ0Dp6WbmqYEzx7qbJF45GT_1J6iORRhQtasx0FP7urAHrw70vq0FbTfJjBzYM8Gz2zxg19ferjS7E-WdIphbT9OKgOMNr5BcXvjIK57Ph6-wsmgQhEk2wafTRumETn8i-r5Z8-cGzAam3hBO3crL6Rnu41j59jqihKDtmZz146VD5geDqmUBnDvrN9HTjPDsrV_M',
-            type: 'FORUM POST',
-            title: 'Why your framework is garbage and you are too',
-            excerpt: 'If you use this framework you lack basic logical reasoning skills...',
-            body: 'I hate this framework and anyone who defends it is completely incompetent. Go back to boot camp...',
-            reason: 'Harassment & Abuse',
-            priority: 'High',
-            time: '3 hours ago',
-            status: 'flagged'
-        }
-    ];
+    let flaggedItems = @json($flaggedPosts->map(function ($post) {
+        return [
+            'id' => $post->id,
+            'author' => $post->user->name ?? 'Anonymous',
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=F87171&background=FEE2E2',
+            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
+            'title' => $post->title,
+            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
+            'body' => $post->content,
+            'reason' => 'Draft/Flagged Content',
+            'priority' => 'High',
+            'time' => $post->created_at->diffForHumans(),
+            'status' => 'flagged'
+        ];
+    }));
 
-    let resolvedItems = [
-        {
-            id: 201,
-            author: 'l33t_haxor',
-            avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCF8h-GwME2Gl8GYC4BeqiQRFSZQGEjkmKkRQh3LTwVXZEcIpaplVbI0g1d7mV0FuSy-PMqf0GZ0Dp6WbmqYEzx7qbJF45GT_1J6iORRhQtasx0FP7urAHrw70vq0FbTfJjBzYM8Gz2zxg19ferjS7E-WdIphbT9OKgOMNr5BcXvjIK57Ph6-wsmgQhEk2wafTRumETn8i-r5Z8-cGzAam3hBO3crL6Rnu41j59jqihKDtmZz146VD5geDqmUBnDvrN9HTjPDsrV_M',
-            type: 'ARTICLE',
-            title: 'Securing API Gateways against OAuth vulnerabilities',
-            excerpt: 'Best methodologies to harden OAuth flows and configure proxy routes...',
-            body: 'An in depth analysis of OAuth2.1 flow security, including authorization code leaks, PKCE execution parameters, and request-response header validations...',
-            resolution: 'Approved',
-            moderator: 'sarah_ops',
-            time: 'Yesterday',
-            status: 'resolved'
-        }
-    ];
+    let resolvedItems = @json($resolvedPosts->map(function ($post) {
+        return [
+            'id' => $post->id,
+            'author' => $post->user->name ?? 'Anonymous',
+            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=34D399&background=D1FAE5',
+            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
+            'title' => $post->title,
+            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
+            'body' => $post->content,
+            'resolution' => 'Approved',
+            'moderator' => 'sarah_ops',
+            'time' => $post->created_at->diffForHumans(),
+            'status' => 'resolved'
+        ];
+    }));
 
     let activeTab = 'pending';
-    let expandedItemIds = [1]; // Expand Rust Lifetimes by default
+    let expandedItemIds = queueItems.length > 0 ? [queueItems[0].id] : []; // Expand Rust Lifetimes by default
 
     // DOM Elements
     const listContainer = document.getElementById('queue-list');
@@ -690,28 +629,50 @@
         }
 
         if (found) {
-            // Remove from source array
-            if (listName === 'queueItems') {
-                queueItems = queueItems.filter(x => x.id !== id);
-            } else {
-                flaggedItems = flaggedItems.filter(x => x.id !== id);
-            }
-            
-            // Add to resolved array
-            resolvedItems.unshift({
-                id: found.id,
-                author: found.author,
-                avatar: found.avatar,
-                type: found.type,
-                title: found.title,
-                resolution: 'Approved',
-                moderator: 'sarah_ops',
-                time: 'Just now',
-                status: 'resolved'
-            });
+            fetch(`/admin/posts/${id}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Remove from source array
+                    if (listName === 'queueItems') {
+                        queueItems = queueItems.filter(x => x.id !== id);
+                    } else {
+                        flaggedItems = flaggedItems.filter(x => x.id !== id);
+                    }
+                    
+                    // Add to resolved array
+                    resolvedItems.unshift({
+                        id: found.id,
+                        author: found.author,
+                        avatar: found.avatar,
+                        type: found.type,
+                        title: found.title,
+                        resolution: 'Approved',
+                        moderator: 'sarah_ops',
+                        time: 'Just now',
+                        status: 'resolved'
+                    });
 
-            showToast(`"${found.title}" approved successfully`, 'success');
-            renderQueue();
+                    showToast(`"${found.title}" approved successfully`, 'success');
+                    renderQueue();
+                } else {
+                    showToast(data.message || 'Approval failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showToast('An error occurred during approval', 'error');
+            });
         }
     }
 
@@ -744,29 +705,51 @@
         }
 
         if (found) {
-            // Remove from source
-            if (listName === 'queueItems') {
-                queueItems = queueItems.filter(x => x.id !== activeRejectId);
-            } else {
-                flaggedItems = flaggedItems.filter(x => x.id !== activeRejectId);
-            }
+            fetch(`/admin/posts/${activeRejectId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Remove from source
+                    if (listName === 'queueItems') {
+                        queueItems = queueItems.filter(x => x.id !== activeRejectId);
+                    } else {
+                        flaggedItems = flaggedItems.filter(x => x.id !== activeRejectId);
+                    }
 
-            // Push to resolved
-            resolvedItems.unshift({
-                id: found.id,
-                author: found.author,
-                avatar: found.avatar,
-                type: found.type,
-                title: found.title,
-                resolution: `Rejected (${selectedReason})`,
-                moderator: 'sarah_ops',
-                time: 'Just now',
-                status: 'resolved'
+                    // Push to resolved
+                    resolvedItems.unshift({
+                        id: found.id,
+                        author: found.author,
+                        avatar: found.avatar,
+                        type: found.type,
+                        title: found.title,
+                        resolution: `Rejected (${selectedReason})`,
+                        moderator: 'sarah_ops',
+                        time: 'Just now',
+                        status: 'resolved'
+                    });
+
+                    showToast(`"${found.title}" rejected: ${selectedReason}`, 'error');
+                    rejectModal.classList.add('hidden');
+                    renderQueue();
+                } else {
+                    showToast(data.message || 'Rejection failed', 'error');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                showToast('An error occurred during rejection', 'error');
             });
-
-            showToast(`"${found.title}" rejected: ${selectedReason}`, 'error');
-            rejectModal.classList.add('hidden');
-            renderQueue();
         }
     });
 
@@ -860,39 +843,72 @@
             return;
         }
 
-        let processedCount = 0;
-        ids.forEach(id => {
-            let found = queueItems.find(x => x.id === id);
-            let listName = 'queueItems';
-            if (!found) {
-                found = flaggedItems.find(x => x.id === id);
-                listName = 'flaggedItems';
-            }
-
-            if (found) {
-                processedCount++;
-                if (listName === 'queueItems') {
-                    queueItems = queueItems.filter(x => x.id !== id);
-                } else {
-                    flaggedItems = flaggedItems.filter(x => x.id !== id);
+        const endpointSuffix = action === 'approve' ? 'approve' : 'reject';
+        const promises = ids.map(id => {
+            return fetch(`/admin/posts/${id}/${endpointSuffix}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 }
-
-                resolvedItems.unshift({
-                    id: found.id,
-                    author: found.author,
-                    avatar: found.avatar,
-                    type: found.type,
-                    title: found.title,
-                    resolution: action === 'approve' ? 'Approved (Bulk)' : 'Rejected (Bulk)',
-                    moderator: 'sarah_ops',
-                    time: 'Just now',
-                    status: 'resolved'
-                });
-            }
+            })
+            .then(response => {
+                if (!response.ok) throw new Error(`Failed for ID ${id}`);
+                return response.json().then(data => ({ id, data }));
+            })
+            .catch(error => ({ id, error }));
         });
 
-        showToast(`Bulk action processed: ${action === 'approve' ? 'Approved' : 'Rejected'} ${processedCount} items`, 'success');
-        renderQueue();
+        Promise.all(promises)
+            .then(results => {
+                let successCount = 0;
+                let failCount = 0;
+
+                results.forEach(res => {
+                    if (res.data && res.data.success) {
+                        successCount++;
+                        const id = res.id;
+                        let found = queueItems.find(x => x.id === id);
+                        let listName = 'queueItems';
+                        if (!found) {
+                            found = flaggedItems.find(x => x.id === id);
+                            listName = 'flaggedItems';
+                        }
+
+                        if (found) {
+                            if (listName === 'queueItems') {
+                                queueItems = queueItems.filter(x => x.id !== id);
+                            } else {
+                                flaggedItems = flaggedItems.filter(x => x.id !== id);
+                            }
+
+                            resolvedItems.unshift({
+                                id: found.id,
+                                author: found.author,
+                                avatar: found.avatar,
+                                type: found.type,
+                                title: found.title,
+                                resolution: action === 'approve' ? 'Approved (Bulk)' : 'Rejected (Bulk)',
+                                moderator: 'sarah_ops',
+                                time: 'Just now',
+                                status: 'resolved'
+                            });
+                        }
+                    } else {
+                        failCount++;
+                    }
+                });
+
+                if (successCount > 0) {
+                    showToast(`Successfully ${action === 'approve' ? 'approved' : 'rejected'} ${successCount} items`, 'success');
+                }
+                if (failCount > 0) {
+                    showToast(`Failed to process ${failCount} items`, 'error');
+                }
+                
+                renderQueue();
+            });
     }
 
     // Bulletin Modal toggles

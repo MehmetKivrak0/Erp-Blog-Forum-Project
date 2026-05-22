@@ -111,6 +111,14 @@
                         </div>
                         <input type="hidden" name="visibility" id="visibility-input" value="public" />
                     </div>
+                    <div class="flex flex-col gap-2">
+                        <span class="font-body-md text-body-md text-on-surface">Category</span>
+                        <select name="category_id" class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-body-md font-body-md text-on-surface">
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </section>
             <!-- SEO Metadata Card -->

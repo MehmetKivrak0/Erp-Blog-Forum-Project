@@ -10,14 +10,23 @@ class AppServiceProvider extends ServiceProvider
      * Register any application services.
      */
     public function register(): void
-{
-    // Sözleşme ile sınıfı birbirine bağlıyoruz (Mimarinin kalbi)
-    $this->app->bind(
-        \App\Blog\Interfaces\BlogRepositoryInterface::class,
-        \App\Blog\Repositories\BlogRepository::class
-    );
-}
+    {
+        // Interface ile Repository'i birbirine bağlıyoruz
+        $this->app->bind(
+            \App\Blog\Interfaces\BlogRepositoryInterface::class,
+            \App\Blog\Repositories\BlogRepository::class
+        );
 
+        $this->app->bind(
+            \App\Forum\Interfaces\ForumRepositoryInterface::class,
+            \App\Forum\Repositories\ForumRepository::class
+        );
+
+        $this->app->bind(
+            \App\Auth\Interfaces\UserRepositoryInterface::class,
+            \App\Auth\Repositories\UserRepository::class
+        );
+    }
     /**
      * Bootstrap any application services.
      */

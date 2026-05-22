@@ -31,4 +31,28 @@ class User extends Authenticatable
             'role' => UserRole::class,
         ];
     }
+
+    /**
+     * İLİŞKİ: Kullanıcının yazdığı blog yazıları.
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    /**
+     * İLİŞKİ: Kullanıcının açtığı forum konuları.
+     */
+    public function forumTopics()
+    {
+        return $this->hasMany(ForumTopic::class);
+    }
+
+    /**
+     * İLİŞKİ: Kullanıcının yaptığı yorumlar.
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

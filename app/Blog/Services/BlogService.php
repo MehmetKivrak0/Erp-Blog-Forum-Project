@@ -17,6 +17,22 @@ class BlogService extends BaseService
     ) {}
 
     /**
+     * Tüm yayınlanmış blog yazılarını getirir.
+     */
+    public function getPublishedPosts(?string $categorySlug = null)
+    {
+        return $this->repository->getPublishedPosts($categorySlug);
+    }
+
+    /**
+     * ID'ye göre blog detaylarını getirir.
+     */
+    public function getPostDetails(int $id): ?Post
+    {
+        return $this->repository->getPostDetails($id);
+    }
+
+    /**
      * Yeni bir blog yazısı oluşturma iş mantığı.
      */
     public function createPost(CreatePostDTO $dto): Post
@@ -38,5 +54,15 @@ class BlogService extends BaseService
             return $this->repository->create($postData);
 
         }, 'Blog yazısı oluşturulurken sistemsel bir hata meydana geldi.');
+    }
+
+    /**
+     * Blog yazısını siler.
+     */
+    public function deletePost(int $id): bool
+    {
+        return $this->executeSafe(function () use ($id) {
+            return $this->repository->deleteById($id);
+        }, 'Blog yazısı silinirken bir hata oluştu.');
     }
 }
