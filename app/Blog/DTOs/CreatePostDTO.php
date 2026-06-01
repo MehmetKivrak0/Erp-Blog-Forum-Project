@@ -16,6 +16,7 @@ class CreatePostDTO
         public readonly string $title,
         public readonly string $slug,
         public readonly string $content,
-        public readonly PostStatus $status = PostStatus::PENDING
+        public readonly PostStatus $status = PostStatus::PENDING,
+        public readonly ?string $coverImage = null
     ) {}
 }

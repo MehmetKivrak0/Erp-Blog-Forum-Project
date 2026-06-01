@@ -21,23 +21,35 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/profile', [\App\Http\Controllers\Web\ProfileController::class, 'show'])->name('profile');
-    
+
     // Blog (Korumalı)
     Route::get('/blog/create', [BlogController::class, 'create'])->name('blog.create');
     Route::post('/blog/create', [BlogController::class, 'store'])->name('blog.create.post');
-    Route::post('/blog/{id}/comment', [BlogController::class, 'storeComment'])->name('blog.comment');
-    
+    Route::post('/blog/{post}/comment', [BlogController::class, 'storeComment'])->name('blog.comment');
+    Route::get('/blog/{post}/edit', [BlogController::class, 'edit'])->name('blog.edit');
+    Route::put('/blog/{post}', [BlogController::class, 'update'])->name('blog.update');
+    Route::delete('/blog/{post}', [BlogController::class, 'destroy'])->name('blog.destroy');
+
     // Forum (Korumalı)
-    Route::post('/forum/{id}/reply', [ForumController::class, 'storeReply'])->name('forum.reply');
+    Route::post('/forum/{topic}/reply', [ForumController::class, 'storeReply'])->name('forum.reply');
+    Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
+    Route::post('/forum/create', [ForumController::class, 'store'])->name('forum.create.post');
+    Route::get('/forum/{topic}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+    Route::put('/forum/{topic}', [ForumController::class, 'update'])->name('forum.update');
+    Route::delete('/forum/{topic}', [ForumController::class, 'destroy'])->name('forum.destroy');
+    Route::post('/forum/{topic}/vote', [ForumController::class, 'vote'])->name('forum.topic.vote');
+    Route::post('/forum/replies/{comment}/vote', [ForumController::class, 'voteReply'])->name('forum.reply.vote');
+    Route::post('/forum/{topic}/bookmark', [ForumController::class, 'bookmark'])->name('forum.topic.bookmark');
+    Route::post('/forum/{topic}/solution', [ForumController::class, 'toggleSolution'])->name('forum.topic.solution');
 });
 
 // Blog (Açık)
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
-Route::get('/blog/{id}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 
 // Forum (Açık)
 Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
-Route::get('/forum/{id}', [ForumController::class, 'show'])->name('forum.thread');
+Route::get('/forum/{topic}', [ForumController::class, 'show'])->name('forum.thread');
 
 // Support
 Route::get('/support', function () {
@@ -59,16 +71,35 @@ Route::post('/support', function (\Illuminate\Http\Request $request) {
 use App\Http\Controllers\Web\AdminController;
 
 // Admin Section
-Route::middleware(['auth', 'role:admin,moderator,developer'])->prefix('admin')->group(function () {
-    Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-    Route::get('/moderator-queue', [AdminController::class, 'moderatorQueue'])->name('admin.moderator');
-    Route::get('/system-monitor', [AdminController::class, 'systemMonitor'])->name('admin.monitor');
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+    // Sadece Admin
+    Route::middleware(['role:admin'])->group(function () {
+        Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::get('/metrics', [AdminController::class, 'metrics'])->name('admin.metrics');
+        Route::post('/users/{id}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
+        Route::post('/users/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.users.status');
+    });
 
-    // Admin API Routes
-    Route::post('/users/{id}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
-    Route::post('/users/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.users.status');
-    Route::post('/posts/{id}/approve', [AdminController::class, 'approvePost'])->name('admin.posts.approve');
-    Route::post('/posts/{id}/reject', [AdminController::class, 'rejectPost'])->name('admin.posts.reject');
-    Route::post('/maintenance/toggle', [AdminController::class, 'toggleMaintenance'])->name('admin.maintenance.toggle');
+    // Admin ve Moderatör
+    Route::middleware(['role:admin,moderator'])->group(function () {
+        Route::get('/moderator-queue', [AdminController::class, 'moderatorQueue'])->name('admin.moderator');
+        
+        // Category Management
+        Route::get('/categories', [\App\Http\Controllers\Web\Admin\CategoryController::class, 'index'])->name('admin.categories.index');
+        Route::post('/categories', [\App\Http\Controllers\Web\Admin\CategoryController::class, 'store'])->name('admin.categories.store');
+        Route::put('/categories/{category}', [\App\Http\Controllers\Web\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
+        Route::delete('/categories/{category}', [\App\Http\Controllers\Web\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+        Route::post('/posts/{id}/approve', [AdminController::class, 'approvePost'])->name('admin.posts.approve');
+        Route::post('/posts/{id}/reject', [AdminController::class, 'rejectPost'])->name('admin.posts.reject');
+        Route::post('/topics/{id}/approve', [AdminController::class, 'approveTopic'])->name('admin.topics.approve');
+        Route::post('/topics/{id}/reject', [AdminController::class, 'rejectTopic'])->name('admin.topics.reject');
+    });
+
+    // Admin ve Developer
+    Route::middleware(['role:admin,developer'])->group(function () {
+        Route::get('/system-monitor', [AdminController::class, 'systemMonitor'])->name('admin.monitor');
+        Route::post('/maintenance/toggle', [AdminController::class, 'toggleMaintenance'])->name('admin.maintenance.toggle');
+    });
 });
 

@@ -27,8 +27,8 @@
         <a href="{{ route('home') }}" class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim hover:opacity-90">DevNexus Console</a>
         <div class="hidden md:flex ml-8 gap-6">
             <a href="{{ route('admin.dashboard') }}" class="font-label-md text-label-md text-primary dark:text-primary-fixed-dim font-bold cursor-pointer">Dashboard</a>
-            <a href="{{ route('home') }}" class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:bg-surface-hover dark:hover:bg-surface-container-high transition-colors duration-150 p-2 rounded cursor-pointer">Community</a>
-            <button onclick="showToast('Redirecting to Analytics portal...')" class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:bg-surface-hover dark:hover:bg-surface-container-high transition-colors duration-150 p-2 rounded cursor-pointer text-left">Analytics</button>
+            <a href="{{ route('admin.moderator') }}" class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:bg-surface-hover dark:hover:bg-surface-container-high transition-colors duration-150 p-2 rounded cursor-pointer">Moderation</a>
+            <a href="{{ route('admin.monitor') }}" class="font-label-md text-label-md text-on-surface-variant dark:text-outline hover:bg-surface-hover dark:hover:bg-surface-container-high transition-colors duration-150 p-2 rounded cursor-pointer">System</a>
         </div>
     </div>
     <div class="flex items-center gap-gutter">
@@ -48,33 +48,29 @@
                     <span id="notifications-badge" class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
                 </button>
                 <!-- Notifications Dropdown -->
+                @php
+                    $latestPendingPosts = \App\Models\Post::where('status', \App\Core\Enums\PostStatus::PENDING->value)->latest()->take(3)->get();
+                @endphp
                 <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-xl shadow-xl z-50 p-4 text-left">
                     <div class="flex justify-between items-center border-b border-outline-variant dark:border-slate-800 pb-2 mb-2">
                         <h4 class="text-label-md font-bold text-on-background dark:text-white">Admin Alerts</h4>
                         <button id="clear-notifications" class="text-primary dark:text-primary-fixed-dim text-[12px] hover:underline">Clear all</button>
                     </div>
                     <div class="space-y-3 max-h-60 overflow-y-auto">
-                        <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
+                        @forelse($latestPendingPosts as $pendingPost)
+                        <div onclick="window.location.href='{{ route('admin.moderator') }}'" class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high cursor-pointer">
                             <span class="material-symbols-outlined text-error text-[20px] mt-0.5">report</span>
                             <div>
-                                <p class="text-label-md text-on-background dark:text-white">New user report on thread #105</p>
-                                <p class="text-[10px] text-outline">2 mins ago</p>
+                                <p class="text-label-md text-on-background dark:text-white">Pending post: {{ \Illuminate\Support\Str::limit($pendingPost->title, 32) }}</p>
+                                <p class="text-[10px] text-outline">{{ $pendingPost->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
-                        <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
-                            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">group</span>
-                            <div>
-                                <p class="text-label-md text-on-background dark:text-white">Sarah requested Moderator role</p>
-                                <p class="text-[10px] text-outline">1 hour ago</p>
-                            </div>
+                        @empty
+                        <div class="p-4 text-center text-label-sm text-outline">
+                            <span class="material-symbols-outlined text-[#15803d] text-[24px] mb-1 block">check_circle</span>
+                            All content queue is clear
                         </div>
-                        <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
-                            <span class="material-symbols-outlined text-[#15803d] text-[20px] mt-0.5">check_circle</span>
-                            <div>
-                                <p class="text-label-md text-on-background dark:text-white">CPU utilization stable under load</p>
-                                <p class="text-[10px] text-outline">4 hours ago</p>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -105,44 +101,66 @@
             </div>
         </div>
         <nav class="flex-1 flex flex-col gap-1">
+            @if(in_array(auth()->user()->role->value, ['admin']))
             <!-- Admin Overview Active -->
             <a class="flex items-center gap-3 px-4 py-3 bg-primary-fixed dark:bg-primary-container text-on-primary-fixed dark:text-on-primary-container font-bold rounded-lg translate-x-1 active:scale-98 transition-transform" href="{{ route('admin.dashboard') }}">
                 <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
                 <span class="font-label-md text-label-md">Admin Overview</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="{{ route('admin.moderator') }}">
                 <span class="material-symbols-outlined" data-icon="gavel">gavel</span>
                 <span class="font-label-md text-label-md">Moderator Hub</span>
             </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="{{ route('admin.categories.index') }}">
+                <span class="material-symbols-outlined" data-icon="category">category</span>
+                <span class="font-label-md text-label-md">Category Management</span>
+            </a>
+            @endif
+
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="{{ route('home') }}">
                 <span class="material-symbols-outlined" data-icon="terminal">terminal</span>
                 <span class="font-label-md text-label-md">Dev Portal</span>
             </a>
+
+            @if(in_array(auth()->user()->role->value, ['admin']))
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="#user-directory-section">
                 <span class="material-symbols-outlined" data-icon="group">group</span>
                 <span class="font-label-md text-label-md">User Directory</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="{{ route('admin.moderator') }}">
                 <span class="material-symbols-outlined" data-icon="playlist_add_check">playlist_add_check</span>
                 <span class="font-label-md text-label-md">Content Queue</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'developer']))
             <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 rounded-lg" href="{{ route('admin.monitor') }}">
                 <span class="material-symbols-outlined" data-icon="monitoring">monitoring</span>
                 <span class="font-label-md text-label-md">System Health</span>
             </a>
+            @endif
         </nav>
+        @if(in_array(auth()->user()->role->value, ['admin', 'developer']))
         <button id="deploy-btn-sidebar" class="bg-primary text-on-primary py-3 rounded-lg font-bold flex items-center justify-center gap-2 mb-4 hover:opacity-90 transition-opacity">
             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
             Deploy Update
         </button>
+        @endif
         <div class="border-t border-outline-variant dark:border-slate-800 pt-4 flex flex-col gap-1">
             <a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface transition-all duration-200" href="{{ route('support') }}">
                 <span class="material-symbols-outlined" data-icon="help">help</span>
                 <span class="font-label-md text-label-md">Help Center</span>
             </a>
-            <a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface transition-all duration-200" href="{{ route('support') }}">
-                <span class="material-symbols-outlined" data-icon="description">description</span>
-                <span class="font-label-md text-label-md">Documentation</span>
+            {{-- Back to site --}}
+            <a class="flex items-center gap-3 px-4 py-2 mt-1 rounded-lg bg-surface-container hover:bg-primary-container dark:bg-slate-800 dark:hover:bg-slate-700 text-on-surface dark:text-white font-semibold transition-all duration-200 group" href="{{ route('home') }}">
+                <span class="material-symbols-outlined text-primary group-hover:text-on-primary-container transition-colors" data-icon="arrow_back">arrow_back</span>
+                <span class="font-label-md text-label-md">← Siteye Dön</span>
             </a>
         </div>
     </aside>
@@ -559,23 +577,27 @@
             timeframeText.textContent = `Last ${days} Days`;
             
             const totalUsersEl = document.getElementById('stat-total-users');
+            const pendingReportsEl = document.getElementById('stat-pending-reports');
             const activeDiscEl = document.getElementById('stat-active-disc');
             const solRateEl = document.getElementById('stat-sol-rate');
             
-            if (days === '7') {
-                animateValue(totalUsersEl, parseInt(totalUsersEl.textContent.replace(/,/g, '')), 11520, 800);
-                animateValue(activeDiscEl, parseInt(activeDiscEl.textContent.replace(/,/g, '')), 842, 800);
-                solRateEl.textContent = '91%';
-            } else if (days === '30') {
-                animateValue(totalUsersEl, parseInt(totalUsersEl.textContent.replace(/,/g, '')), 12482, 800);
-                animateValue(activeDiscEl, parseInt(activeDiscEl.textContent.replace(/,/g, '')), 1054, 800);
-                solRateEl.textContent = '94%';
-            } else {
-                animateValue(totalUsersEl, parseInt(totalUsersEl.textContent.replace(/,/g, '')), 14890, 800);
-                animateValue(activeDiscEl, parseInt(activeDiscEl.textContent.replace(/,/g, '')), 2840, 800);
-                solRateEl.textContent = '96%';
-            }
-            showToast(`Metric view adjusted to: Last ${days} days`);
+            fetch(`/admin/metrics?days=${days}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        animateValue(totalUsersEl, parseInt(totalUsersEl.textContent.replace(/,/g, '') || '0'), data.totalUsers, 800);
+                        animateValue(pendingReportsEl, parseInt(pendingReportsEl.textContent.replace(/,/g, '') || '0'), data.pendingReports, 800);
+                        animateValue(activeDiscEl, parseInt(activeDiscEl.textContent.replace(/,/g, '') || '0'), data.activeDiscussions, 800);
+                        solRateEl.textContent = data.solutionRate + '%';
+                        showToast(`Metric view adjusted to: Last ${days} days`);
+                    } else {
+                        showToast('Failed to fetch metrics', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    showToast('Failed to fetch metrics', 'error');
+                });
         });
     });
 

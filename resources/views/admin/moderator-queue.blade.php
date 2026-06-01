@@ -47,40 +47,68 @@
             <p class="text-xs text-slate-400 mt-1 font-medium">Moderator Console</p>
         </div>
         <nav class="flex-1 px-4 space-y-1">
+            @if(in_array(auth()->user()->role->value, ['admin']))
             <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200 group" href="{{ route('admin.dashboard') }}">
                 <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-medium">Admin Overview</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
             <a class="flex items-center gap-3 px-4 py-3 text-indigo-600 dark:text-indigo-400 active-nav-bg rounded-xl transition-all duration-200 group" href="{{ route('admin.moderator') }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21.355r-.015.015V21a14.663 14.663 0 007.618-4.016l.382.382" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-semibold">Moderator Hub</span>
                 <div class="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-600"></div>
             </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200" href="{{ route('admin.categories.index') }}">
+                <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span class="text-sm font-medium">Category Management</span>
+            </a>
+            @endif
+
             <div class="pt-4 pb-2 px-4">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Resources</span>
             </div>
+
             <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200" href="{{ route('home') }}">
                 <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-medium">Dev Portal</span>
             </a>
+
+            @if(in_array(auth()->user()->role->value, ['admin']))
             <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200" href="{{ route('admin.dashboard') }}#user-directory-section">
                 <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-medium">User Directory</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
             <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200" href="{{ route('admin.moderator') }}">
                 <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-medium">Content Queue</span>
             </a>
+            @endif
+
+            @if(in_array(auth()->user()->role->value, ['admin', 'developer']))
             <a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all duration-200" href="{{ route('admin.monitor') }}">
                 <svg class="w-5 h-5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04M12 21.355r-.015.015V21a14.663 14.663 0 007.618-4.016l.382.382" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                 <span class="text-sm font-medium">System Health</span>
             </a>
+            @endif
         </nav>
-        <div class="p-4 mt-auto">
+        <div class="p-4 mt-auto space-y-3">
             <div class="bg-indigo-50 dark:bg-slate-800 rounded-2xl p-4">
                 <p class="text-indigo-900 dark:text-indigo-400 text-xs font-bold uppercase tracking-wider mb-1">Moderator Tip</p>
                 <p class="text-indigo-700 dark:text-slate-300 text-xs leading-relaxed">Use bulk actions to process multiple flags at once.</p>
             </div>
+            {{-- Back to site --}}
+            <a href="{{ route('home') }}"
+               class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm transition-all duration-200 group w-full">
+                <svg class="w-4 h-4 text-indigo-500 group-hover:text-indigo-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+                </svg>
+                ← Siteye Dön
+            </a>
         </div>
     </aside>
     <!-- END: Sidebar -->
@@ -358,52 +386,10 @@
 @push('scripts')
 <script>
     // Dynamic Data from Backend
-    let queueItems = @json($pendingPosts->map(function ($post) {
-        return [
-            'id' => $post->id,
-            'author' => $post->user->name ?? 'Anonymous',
-            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=7F9CF5&background=EBF4FF',
-            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
-            'title' => $post->title,
-            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
-            'body' => $post->content,
-            'priority' => 'Medium',
-            'time' => $post->created_at->diffForHumans(),
-            'status' => 'pending'
-        ];
-    }));
+    let queueItems    = @json($queueItems);
+    let flaggedItems  = @json($flaggedItems);
+    let resolvedItems = @json($resolvedItems);
 
-    let flaggedItems = @json($flaggedPosts->map(function ($post) {
-        return [
-            'id' => $post->id,
-            'author' => $post->user->name ?? 'Anonymous',
-            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=F87171&background=FEE2E2',
-            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
-            'title' => $post->title,
-            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
-            'body' => $post->content,
-            'reason' => 'Draft/Flagged Content',
-            'priority' => 'High',
-            'time' => $post->created_at->diffForHumans(),
-            'status' => 'flagged'
-        ];
-    }));
-
-    let resolvedItems = @json($resolvedPosts->map(function ($post) {
-        return [
-            'id' => $post->id,
-            'author' => $post->user->name ?? 'Anonymous',
-            'avatar' => 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name ?? 'Anonymous') . '&color=34D399&background=D1FAE5',
-            'type' => $post->category && $post->category->type === 'forum' ? 'FORUM POST' : 'ARTICLE',
-            'title' => $post->title,
-            'excerpt' => \Illuminate\Support\Str::limit(strip_tags($post->content), 100),
-            'body' => $post->content,
-            'resolution' => 'Approved',
-            'moderator' => 'sarah_ops',
-            'time' => $post->created_at->diffForHumans(),
-            'status' => 'resolved'
-        ];
-    }));
 
     let activeTab = 'pending';
     let expandedItemIds = queueItems.length > 0 ? [queueItems[0].id] : []; // Expand Rust Lifetimes by default
@@ -525,7 +511,7 @@
                         <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden shrink-0">
                             <img alt="User Avatar" class="w-full h-full object-cover" src="${item.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCktVN-BTw7MJKQJW4Bvuvr-BCEM2JLujP12z1jQVIPv5hjnYfKL8epeWoDDyhqm92R74e1-muufnh-PE65GxJPQ-tyR8q7Unfl6K9oOw8mrCMd91EE85uVfhpiZfx1M_WlFP3zhLXCNLHcNrOKWCbN6_KhzzAl52kZjsWJOaF98hikd91snT1DbjK93P2ZOF33FXelpMeUDxLYRT-Ui8eVJgjYy4lfMi_Y1dDERiG7Zx4svVVbfGHKVgug-TTZMbTXqlmzn9s2Y6Q'}"/>
                         </div>
-                        <div class="flex-1 min-w-0" onclick="toggleExpand(${item.id})">
+                        <div class="flex-1 min-w-0" onclick="toggleExpand('${item.id}')">
                             <div class="flex items-center gap-3 mb-1">
                                 <span class="text-sm font-bold text-slate-900 dark:text-white">${item.author}</span>
                                 <span class="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded tracking-widest uppercase">${item.type}</span>
@@ -537,9 +523,9 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-4 ml-auto shrink-0">
-                            <button onclick="viewDetail(${item.id})" class="px-4 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">View Detail</button>
-                            <button onclick="approveItem(${item.id})" class="px-4 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-800 rounded-lg hover:bg-green-100">Approve</button>
-                            <button onclick="triggerReject(${item.id})" class="px-4 py-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-800 rounded-lg hover:bg-red-100">Reject</button>
+                            <button onclick="viewDetail('${item.id}')" class="px-4 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">View Detail</button>
+                            <button onclick="approveItem('${item.id}')" class="px-4 py-1.5 text-xs font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/40 border border-green-100 dark:border-green-800 rounded-lg hover:bg-green-100">Approve</button>
+                            <button onclick="triggerReject('${item.id}')" class="px-4 py-1.5 text-xs font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-800 rounded-lg hover:bg-red-100">Reject</button>
                         </div>
                     </div>
                 `;
@@ -578,7 +564,7 @@
                 else if (item.priority === 'Low') { priorityBg = 'bg-emerald-100 text-emerald-700'; dotBg = 'bg-emerald-500'; }
 
                 rowDiv.innerHTML = `
-                    <div class="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors p-4 flex items-center gap-4 cursor-pointer" onclick="toggleExpand(${item.id})">
+                    <div class="group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors p-4 flex items-center gap-4 cursor-pointer" onclick="toggleExpand('${item.id}')">
                         <input class="row-checkbox w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 rounded focus:ring-indigo-500" type="checkbox" data-id="${item.id}" onclick="event.stopPropagation()"/>
                         <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden shrink-0">
                             <img alt="User Avatar" class="w-full h-full object-cover" src="${item.avatar || 'https://lh3.googleusercontent.com/aida-public/AB6AXuCktVN-BTw7MJKQJW4Bvuvr-BCEM2JLujP12z1jQVIPv5hjnYfKL8epeWoDDyhqm92R74e1-muufnh-PE65GxJPQ-tyR8q7Unfl6K9oOw8mrCMd91EE85uVfhpiZfx1M_WlFP3zhLXCNLHcNrOKWCbN6_KhzzAl52kZjsWJOaF98hikd91snT1DbjK93P2ZOF33FXelpMeUDxLYRT-Ui8eVJgjYy4lfMi_Y1dDERiG7Zx4svVVbfGHKVgug-TTZMbTXqlmzn9s2Y6Q'}"/>
@@ -629,7 +615,8 @@
         }
 
         if (found) {
-            fetch(`/admin/posts/${id}/approve`, {
+            const endpoint = found.source === 'topic' ? `/admin/topics/${found.db_id}/approve` : `/admin/posts/${found.db_id}/approve`;
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -697,6 +684,7 @@
         if (!activeRejectId) return;
         
         const selectedReason = document.querySelector('input[name="reject-reason"]:checked').value;
+
         let found = queueItems.find(x => x.id === activeRejectId);
         let listName = 'queueItems';
         if (!found) {
@@ -705,13 +693,15 @@
         }
 
         if (found) {
-            fetch(`/admin/posts/${activeRejectId}/reject`, {
+            const endpoint = found.source === 'topic' ? `/admin/topics/${found.db_id}/reject` : `/admin/posts/${found.db_id}/reject`;
+            fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
+                },
+                body: JSON.stringify({ reason: selectedReason })
             })
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');

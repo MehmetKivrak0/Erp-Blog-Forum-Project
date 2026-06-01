@@ -8,7 +8,7 @@ class StoreTopicRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Şimdilik testler için herkese açık
+        return $this->user() && $this->user()->can('create', \App\Models\ForumTopic::class);
     }
 
     public function rules(): array

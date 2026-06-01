@@ -32,4 +32,32 @@ class Comment extends Model
     {
         return $this->morphTo();
     }
+
+    /**
+     * POLİMORFİK İLİŞKİ: Bu yoruma ait oylar.
+     */
+    public function votes()
+    {
+        return $this->morphMany(Vote::class, 'votable');
+    }
+
+    /**
+     * Toplam oy skorunu hesaplar (upvotes - downvotes).
+     */
+    public function getScoreAttribute(): int
+    {
+        return (int) $this->votes()->sum('value');
+    }
+
+    /**
+     * Verilen kullanıcının bu yorumdaki oy değerini döner (1, -1 veya null).
+     */
+    public function userVoteValue(?User $user): ?int
+    {
+        if (!$user) {
+            return null;
+        }
+
+        return $this->votes()->where('user_id', $user->id)->value('value');
+    }
 }

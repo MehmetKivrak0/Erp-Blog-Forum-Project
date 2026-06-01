@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Core\Enums\UserRole;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -41,6 +42,47 @@ class AuthTest extends TestCase
 
         $response->assertRedirect(route('home'));
         $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_role_based_login_redirection(): void
+    {
+        $admin = User::factory()->create([
+            'email' => 'admin-test@example.com',
+            'password' => Hash::make('password123'),
+            'role' => UserRole::ADMIN,
+        ]);
+
+        $response = $this->post(route('login'), [
+            'email' => 'admin-test@example.com',
+            'password' => 'password123',
+        ]);
+        $response->assertRedirect(route('admin.dashboard'));
+        $this->post(route('logout'));
+
+        $moderator = User::factory()->create([
+            'email' => 'moderator-test@example.com',
+            'password' => Hash::make('password123'),
+            'role' => UserRole::MODERATOR,
+        ]);
+
+        $response = $this->post(route('login'), [
+            'email' => 'moderator-test@example.com',
+            'password' => 'password123',
+        ]);
+        $response->assertRedirect(route('admin.moderator'));
+        $this->post(route('logout'));
+
+        $developer = User::factory()->create([
+            'email' => 'developer-test@example.com',
+            'password' => Hash::make('password123'),
+            'role' => UserRole::DEVELOPER,
+        ]);
+
+        $response = $this->post(route('login'), [
+            'email' => 'developer-test@example.com',
+            'password' => 'password123',
+        ]);
+        $response->assertRedirect(route('admin.monitor'));
     }
 
     public function test_user_cannot_login_with_incorrect_credentials(): void

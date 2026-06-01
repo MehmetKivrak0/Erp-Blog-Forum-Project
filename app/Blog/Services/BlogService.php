@@ -5,6 +5,7 @@ namespace App\Blog\Services;
 use App\Core\Services\BaseService;
 use App\Blog\Interfaces\BlogRepositoryInterface;
 use App\Blog\DTOs\CreatePostDTO;
+use App\Blog\DTOs\UpdatePostDTO;
 use App\Models\Post;
 
 class BlogService extends BaseService
@@ -22,6 +23,14 @@ class BlogService extends BaseService
     public function getPublishedPosts(?string $categorySlug = null)
     {
         return $this->repository->getPublishedPosts($categorySlug);
+    }
+
+    /**
+     * Tüm yayınlanmış blog yazılarını sayfalı olarak getirir.
+     */
+    public function getPublishedPostsPaginated(?string $categorySlug = null, int $perPage = 5): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->repository->getPublishedPostsPaginated($categorySlug, $perPage);
     }
 
     /**
@@ -47,13 +56,26 @@ class BlogService extends BaseService
                 'title'       => $dto->title,
                 'slug'        => $dto->slug,
                 'content'     => $dto->content,
-                'status'      => $dto->status->value, // Enum'ın veritabanındaki karşılığını (string) alıyoruz
+                'status'      => $dto->status->value,
+                'cover_image' => $dto->coverImage,
             ];
 
             // 2. İşlem: Veritabanına kaydetmesi için Repository'e işi devrediyoruz
             return $this->repository->create($postData);
 
         }, 'Blog yazısı oluşturulurken sistemsel bir hata meydana geldi.');
+    }
+
+    /**
+     * Blog yazısını günceller.
+     */
+    public function updatePost(UpdatePostDTO $dto): Post
+    {
+        return $this->executeSafe(function () use ($dto) {
+            $payload = $dto->toArray();
+            $this->repository->update($dto->postId, $payload);
+            return $this->repository->findById($dto->postId);
+        }, 'Blog yazısı güncellenirken bir hata oluştu.');
     }
 
     /**

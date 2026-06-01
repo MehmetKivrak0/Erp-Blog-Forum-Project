@@ -12,9 +12,9 @@
         <section class="lg:col-span-3 space-y-stack-lg">
             <!-- Category Filtering -->
             <div class="flex items-center gap-stack-sm overflow-x-auto pb-2 scrollbar-hide">
-                <button class="whitespace-nowrap px-stack-md py-2 bg-primary text-on-primary rounded-full text-label-md font-label-md font-bold">All Topics</button>
+                <a href="{{ route('home') }}" class="whitespace-nowrap px-stack-md py-2 rounded-full text-label-md font-label-md font-bold transition-colors {{ empty($currentCategory) ? 'bg-primary text-on-primary' : 'bg-surface-container-highest text-on-surface-variant hover:bg-secondary-container' }}">All Topics</a>
                 @foreach($categories as $category)
-                    <button class="whitespace-nowrap px-stack-md py-2 bg-surface-container-highest text-on-surface-variant hover:bg-secondary-container transition-colors rounded-full text-label-md font-label-md font-medium">{{ $category->name }}</button>
+                    <a href="{{ route('home', ['category' => $category->slug]) }}" class="whitespace-nowrap px-stack-md py-2 rounded-full text-label-md font-label-md font-medium transition-colors {{ $currentCategory === $category->slug ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-highest text-on-surface-variant hover:bg-secondary-container' }}">{{ $category->name }}</a>
                 @endforeach
             </div>
             <!-- Trending Blog Posts Feed -->
@@ -51,14 +51,35 @@
                     <p class="text-on-surface-variant text-center py-8">Henüz yayınlanmış bir blog yazısı bulunmuyor.</p>
                 @endforelse
             </div>
+            
+            <div class="mt-8">
+                {{ $posts->links() }}
+            </div>
         </section>
         <!-- Right Column (Sidebar) -->
         <aside class="space-y-stack-lg">
             <!-- Action Button -->
-            <a href="{{ route('blog.create') }}" class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2">
-                <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
-                Create Post
-            </a>
+            @php
+                $userRole = auth()->user()?->role?->value ?? 'guest';
+                $sidebarPanel = match($userRole) {
+                    'admin'     => ['label' => '⚙ Admin Panel',     'route' => 'admin.dashboard', 'cls' => 'bg-red-600 hover:bg-red-700 text-white'],
+                    'moderator' => ['label' => '🛡 Moderatör Hub',  'route' => 'admin.moderator', 'cls' => 'bg-indigo-600 hover:bg-indigo-700 text-white'],
+                    'developer' => ['label' => '🖥 Sistem Monitör', 'route' => 'admin.monitor',  'cls' => 'bg-emerald-600 hover:bg-emerald-700 text-white'],
+                    default     => null,
+                };
+            @endphp
+            @if($sidebarPanel)
+                <a href="{{ route($sidebarPanel['route']) }}"
+                   class="w-full py-4 rounded-xl font-bold shadow-md transition-all flex items-center justify-center gap-2 {{ $sidebarPanel['cls'] }}">
+                    <span class="material-symbols-outlined" data-icon="admin_panel_settings">admin_panel_settings</span>
+                    {{ $sidebarPanel['label'] }}
+                </a>
+            @else
+                <a href="{{ route('blog.create') }}" class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold shadow-md hover:opacity-90 transition-all flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                    Create Post
+                </a>
+            @endif
             <!-- New Topics -->
             <div class="bg-surface-container-low border border-border-light rounded-xl p-stack-md">
                 <div class="flex items-center justify-between mb-stack-md">

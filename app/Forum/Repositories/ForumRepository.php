@@ -23,6 +23,7 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
     public function getRecentTopics(int $limit): Collection
     {
         return $this->model
+            ->where('is_pending', false)
             ->with(['user', 'category'])
             ->withCount('comments')
             ->latest()
@@ -46,6 +47,7 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
     public function getAllTopics(?string $categorySlug = null): Collection
     {
         $query = $this->model
+            ->where('is_pending', false)  // Hide pending topics from public listing
             ->with(['user', 'category'])
             ->withCount('comments');
 

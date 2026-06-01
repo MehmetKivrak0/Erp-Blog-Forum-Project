@@ -19,20 +19,40 @@
     <!-- Hero Section -->
     <div class="relative w-full h-[32rem] rounded-xl overflow-hidden mb-stack-lg shadow-xl">
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent z-10"></div>
-        <img class="absolute inset-0 w-full h-full object-cover" alt="{{ $post->title }}" src="{{ $post->cover_image ?? 'https://lh3.googleusercontent.com/aida/ADBb0uj8LJ9OR-xxsV8FHCY0MpAbXz3F5eqlD7PNy53-tJCTmjouI3XGFYrpd09YqjkPvP8KJUbihsgC56zMtPcqjCpH6Q822arAdRDI8UI21P8mtm5nhs52U6mGpEPj2Ls1t7BYT6Xmi67VmqYnWg5uRVRwvaLXVvYSwnTBfaGQdBtbTasPZvoKnkkekX5FZuUag9GxVCiJzDHJjfVMjT9kpsRG8ojHf7mn2MyNNWXEwI1y9SbT76xvEz31LlQ' }}"/>
+        <img class="absolute inset-0 w-full h-full object-cover" alt="{{ $post->title }}" src="{{ $post->cover_image ? (Str::startsWith($post->cover_image, 'http') ? $post->cover_image : asset('storage/' . $post->cover_image)) : 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
         <div class="absolute bottom-0 left-0 p-stack-lg z-20 max-w-3xl">
             <div class="flex gap-2 mb-4">
                 <span class="px-3 py-1 bg-primary text-on-primary text-label-sm rounded-full">{{ $post->category?->name ?? 'Web Development' }}</span>
                 <span class="px-3 py-1 bg-surface-container-lowest/20 backdrop-blur-md text-white text-label-sm rounded-full border border-white/20">Featured</span>
             </div>
             <h1 class="font-headline-xl text-headline-xl text-white mb-4 leading-tight">{{ $post->title }}</h1>
-            <div class="flex items-center gap-4 text-white/90">
-                <a href="{{ route('profile') }}" class="block">
-                    <img alt="{{ $post->user?->name }}" class="w-10 h-10 rounded-full border-2 border-white/50" src="https://lh3.googleusercontent.com/aida/ADBb0ugBP2tSik5MFhuWgvgVUCGkxdJWCNaj9ffO0pT34K5MCS9Si4Yxj7oCLUeX1fbmXK9YdXQJ70Dys4iYvLdpR3LW2iHdeHEv_Rw8G1vOwHAkIJKwTyzha-Ebfnwh9zpuM_W7gFw1vmZ6zO-axiFlDkeTqwuD1guH6x00xri9J7A2AH7_WI9_XPABJu1qdofrhMacQkQFjaVz3PpgRDUv6F3yxJ6EDXLf8pENVDM94pwWelJtV_y8ggTZHg"/>
-                </a>
-                <div>
-                    <a href="{{ route('profile') }}" class="font-label-md text-label-md text-white hover:underline text-decoration-none">{{ $post->user?->name ?? 'Anonim' }}</a>
-                    <p class="text-label-sm opacity-80">Software Engineer • 5 min read • {{ $post->created_at->format('M d, Y') }}</p>
+            <div class="flex flex-wrap items-center justify-between gap-4 mt-6">
+                <div class="flex items-center gap-4 text-white/90">
+                    <a href="{{ route('profile') }}" class="block">
+                        <img alt="{{ $post->user?->name }}" class="w-10 h-10 rounded-full border-2 border-white/50" src="https://ui-avatars.com/api/?name={{ urlencode($post->user?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
+                    </a>
+                    <div>
+                        <a href="{{ route('profile') }}" class="font-label-md text-label-md text-white hover:underline text-decoration-none">{{ $post->user?->name ?? 'Anonim' }}</a>
+                        <p class="text-label-sm opacity-80">Software Engineer • 5 min read • {{ $post->created_at->format('M d, Y') }}</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    @can('update', $post)
+                        <a href="{{ route('blog.edit', $post->id) }}" class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg font-label-md text-label-md transition-colors flex items-center gap-1 text-decoration-none border border-white/20 backdrop-blur-sm">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                            <span>Edit</span>
+                        </a>
+                    @endcan
+                    @can('delete', $post)
+                        <form action="{{ route('blog.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this post?');" class="inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="px-4 py-2 bg-red-600/80 hover:bg-red-600 text-white rounded-lg font-label-md text-label-md transition-colors flex items-center gap-1 backdrop-blur-sm border border-red-500/20">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                <span>Delete</span>
+                            </button>
+                        </form>
+                    @endcan
                 </div>
             </div>
         </div>
@@ -57,7 +77,7 @@
                 <form action="{{ route('blog.comment', $post->id) }}" method="POST" class="bg-surface-container p-stack-md rounded-xl border border-outline-variant mb-stack-lg">
                     @csrf
                     <div class="flex gap-4 mb-4">
-                        <img alt="Your Avatar" class="w-10 h-10 rounded-full" src="https://lh3.googleusercontent.com/aida/ADBb0ugBP2tSik5MFhuWgvgVUCGkxdJWCNaj9ffO0pT34K5MCS9Si4Yxj7oCLUeX1fbmXK9YdXQJ70Dys4iYvLdpR3LW2iHdeHEv_Rw8G1vOwHAkIJKwTyzha-Ebfnwh9zpuM_W7gFw1vmZ6zO-axiFlDkeTqwuD1guH6x00xri9J7A2AH7_WI9_XPABJu1qdofrhMacQkQFjaVz3PpgRDUv6F3yxJ6EDXLf8pENVDM94pwWelJtV_y8ggTZHg"/>
+                        <img alt="Your Avatar" class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
                         <textarea name="comment" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary focus:border-primary resize-none min-h-[100px] transition-all" placeholder="Share your thoughts..." required></textarea>
                     </div>
                     <div class="flex justify-end">
@@ -69,7 +89,7 @@
                     @forelse($post->comments as $comment)
                         <!-- Comment -->
                         <div class="flex gap-4">
-                            <img alt="Avatar" class="w-10 h-10 rounded-full flex-shrink-0" src="https://lh3.googleusercontent.com/aida/ADBb0ugBP2tSik5MFhuWgvgVUCGkxdJWCNaj9ffO0pT34K5MCS9Si4Yxj7oCLUeX1fbmXK9YdXQJ70Dys4iYvLdpR3LW2iHdeHEv_Rw8G1vOwHAkIJKwTyzha-Ebfnwh9zpuM_W7gFw1vmZ6zO-axiFlDkeTqwuD1guH6x00xri9J7A2AH7_WI9_XPABJu1qdofrhMacQkQFjaVz3PpgRDUv6F3yxJ6EDXLf8pENVDM94pwWelJtV_y8ggTZHg"/>
+                            <img alt="Avatar" class="w-10 h-10 rounded-full flex-shrink-0" src="https://ui-avatars.com/api/?name={{ urlencode($comment->user?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
                             <div class="flex-grow">
                                 <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
                                     <div class="flex justify-between items-center mb-1">
@@ -107,7 +127,7 @@
                     @forelse($relatedPosts as $related)
                         <a href="{{ route('blog.show', $related->id) }}" class="flex gap-3 group cursor-pointer text-decoration-none">
                             <div class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                                <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" alt="{{ $related->title }}" src="{{ $related->cover_image ?? 'https://lh3.googleusercontent.com/aida/ADBb0uj8LJ9OR-xxsV8FHCY0MpAbXz3F5eqlD7PNy53-tJCTmjouI3XGFYrpd09YqjkPvP8KJUbihsgC56zMtPcqjCpH6Q822arAdRDI8UI21P8mtm5nhs52U6mGpEPj2Ls1t7BYT6Xmi67VmqYnWg5uRVRwvaLXVvYSwnTBfaGQdBtbTasPZvoKnkkekX5FZuUag9GxVCiJzDHJjfVMjT9kpsRG8ojHf7mn2MyNNWXEwI1y9SbT76xvEz31LlQ' }}"/>
+                                <img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" alt="{{ $related->title }}" src="{{ $related->cover_image ? (Str::startsWith($related->cover_image, 'http') ? $related->cover_image : asset('storage/' . $related->cover_image)) : 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
                             </div>
                             <div>
                                 <p class="font-label-md text-on-surface group-hover:text-primary transition-colors leading-tight">{{ $related->title }}</p>

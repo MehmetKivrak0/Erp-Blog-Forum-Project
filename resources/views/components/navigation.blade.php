@@ -27,10 +27,34 @@
             @endif
             <button class="material-symbols-outlined text-on-surface-variant p-2 hover:bg-surface-hover rounded-full" data-icon="notifications">notifications</button>
             @auth
+                @php
+                    $userRole = auth()->user()->role?->value ?? 'user';
+                    $panelConfig = match($userRole) {
+                        'admin'     => ['label' => '⚙ Admin Panel',     'route' => 'admin.dashboard', 'cls' => 'bg-red-600 hover:bg-red-700 text-white'],
+                        'moderator' => ['label' => '🛡 Moderatör Hub',  'route' => 'admin.moderator', 'cls' => 'bg-indigo-600 hover:bg-indigo-700 text-white'],
+                        'developer' => ['label' => '🖥 Sistem Monitör', 'route' => 'admin.monitor',  'cls' => 'bg-emerald-600 hover:bg-emerald-700 text-white'],
+                        default     => null,
+                    };
+                @endphp
+
                 <a href="{{ route('profile') }}" class="h-8 w-8 rounded-full bg-secondary-container overflow-hidden block hover:ring-2 hover:ring-primary/20" title="{{ auth()->user()->name }}">
-                    <img alt="User profile avatar" data-alt="A clean, professional profile avatar of a developer..." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkzKorOL9nDgEXyPQl3RBQljjrIFhZiUvnH58Nzv-ihMltPDSAL7bpxXxMalD8zkR-PHWHqLLexUwUTkwyEginq6F8jHbUH_v12eyd9xZRjRb-bf9KBjfhoveeex06evduzsZepwRyqGxcIBGbnitSCwZzaHa7F1kS7n8EreV3YjSzr5PsMX5HFfS0ICco6pIdZwSda1hrxmhZPMhaGO3Uh4QwbwzWfDApmT4n3afU4kYeZ1zaFhQ09yCHYSn2ns-PWWBjGLZYCfE"/>
+                    <img alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkzKorOL9nDgEXyPQl3RBQljjrIFhZiUvnH58Nzv-ihMltPDSAL7bpxXxMalD8zkR-PHWHqLLexUwUTkwyEginq6F8jHbUH_v12eyd9xZRjRb-bf9KBjfhoveeex06evduzsZepwRyqGxcIBGbnitSCwZzaHa7F1kS7n8EreV3YjSzr5PsMX5HFfS0ICco6pIdZwSda1hrxmhZPMhaGO3Uh4QwbwzWfDApmT4n3afU4kYeZ1zaFhQ09yCHYSn2ns-PWWBjGLZYCfE"/>
                 </a>
-                <a href="{{ route('blog.create') }}" class="hidden lg:block bg-primary text-on-primary px-stack-md py-stack-sm rounded-lg text-label-md font-label-md font-bold hover:opacity-90 transition-all text-decoration-none">Create Post</a>
+
+                @if($panelConfig)
+                    {{-- Privileged role: show panel shortcut, hide Create Post --}}
+                    <a href="{{ route($panelConfig['route']) }}"
+                       class="hidden lg:inline-flex items-center gap-1.5 px-stack-md py-stack-sm rounded-lg text-label-md font-label-md font-bold transition-all text-decoration-none shadow-sm {{ $panelConfig['cls'] }}">
+                        {{ $panelConfig['label'] }}
+                    </a>
+                @else
+                    {{-- Regular user: show Create Post --}}
+                    <a href="{{ route('blog.create') }}"
+                       class="hidden lg:block bg-primary text-on-primary px-stack-md py-stack-sm rounded-lg text-label-md font-label-md font-bold hover:opacity-90 transition-all text-decoration-none">
+                        Create Post
+                    </a>
+                @endif
+
                 <form action="{{ route('logout') }}" method="POST" class="inline">
                     @csrf
                     <button type="submit" class="hidden md:flex items-center text-on-surface-variant hover:text-primary transition-colors text-label-md font-label-md bg-transparent border-none cursor-pointer p-2 hover:bg-surface-hover rounded-lg gap-1">

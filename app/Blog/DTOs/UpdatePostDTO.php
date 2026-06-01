@@ -16,7 +16,8 @@ class UpdatePostDTO
         public readonly ?string $title = null,
         public readonly ?string $slug = null,
         public readonly ?string $content = null,
-        public readonly ?PostStatus $status = null
+        public readonly ?PostStatus $status = null,
+        public readonly ?string $coverImage = null
     ) {}
     
     /**
@@ -31,6 +32,7 @@ class UpdatePostDTO
         if ($this->slug !== null)       $data['slug']        = $this->slug;
         if ($this->content !== null)    $data['content']     = $this->content;
         if ($this->status !== null)     $data['status']      = $this->status->value;
+        if ($this->coverImage !== null) $data['cover_image'] = $this->coverImage;
         
         return $data;
     }

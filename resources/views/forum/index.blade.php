@@ -14,7 +14,7 @@
             <p class="text-body-lg font-body-lg text-on-surface-variant mt-2 max-w-2xl">Ask questions, share knowledge, and connect with other developers in the community.</p>
         </div>
         @auth
-        <a href="{{ route('blog.create') }}" class="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-all text-decoration-none flex items-center gap-2">
+        <a href="{{ route('forum.create') }}" class="bg-primary text-on-primary px-6 py-3 rounded-lg font-bold hover:opacity-90 transition-all text-decoration-none flex items-center gap-2">
             <span class="material-symbols-outlined">add_circle</span>
             New Topic
         </a>
@@ -44,8 +44,14 @@
                 <div class="flex items-start gap-4">
                     <img alt="User avatar" class="w-10 h-10 rounded-full border border-border-light object-cover mt-1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvJbJyU0-zx7RUYmkBEu7k0RxVCyA3-jgOxVAZWSZW5iTwUktVZCwvb48KN0M_pZAeRqRvBhJL4EkgKsWoF06oBBYlsqKvWwXldCMXthPEiRcEWlGRG3RxzjzHWaz3WKX618qm8FQdg7XLWY8RPWWp_0uptR7OoaA0RZcMpDQigkVr2KJJNY-quXycu6-PQ7si2V24SMrQnolu1Mh0mrNAz0CRdK6CuyykacXaFs0nhm7DRNlkPHM2YcmaWRn4yKI26J_Z6KjqxoE"/>
                     <div>
-                        <h3 class="text-headline-md font-headline-md text-on-surface hover:text-primary transition-colors">
+                        <h3 class="text-headline-md font-headline-md text-on-surface hover:text-primary transition-colors flex items-center gap-2 flex-wrap">
                             <a href="{{ route('forum.thread', $topic->id) }}" class="text-decoration-none">{{ $topic->title }}</a>
+                            @if($topic->solution_comment_id)
+                                <span class="flex items-center gap-0.5 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full text-label-sm font-bold border border-emerald-100" title="This topic has a verified solution">
+                                    <span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    <span>Solved</span>
+                                </span>
+                            @endif
                         </h3>
                         <div class="flex flex-wrap items-center gap-3 mt-1 text-label-sm font-label-sm text-on-surface-variant">
                             <span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded-full">{{ $topic->category?->name ?? 'General' }}</span>

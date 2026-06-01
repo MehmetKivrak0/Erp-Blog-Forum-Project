@@ -38,6 +38,24 @@ class BlogRepository extends BaseRepository implements BlogRepositoryInterface
     }
 
     /**
+     * Sadece durumu "YAYINDA (PUBLISHED)" olan blog yazılarını sayfalı olarak getirir.
+     */
+    public function getPublishedPostsPaginated(?string $categorySlug = null, int $perPage = 5): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $this->model
+            ->where('status', PostStatus::PUBLISHED)
+            ->with(['user', 'category']);
+
+        if ($categorySlug) {
+            $query->whereHas('category', function ($q) use ($categorySlug) {
+                $q->where('slug', $categorySlug);
+            });
+        }
+
+        return $query->latest()->paginate($perPage);
+    }
+
+    /**
      * Blog yazısının detaylarını yazarı, kategorisi ve yorumlarıyla getirir.
      */
     public function getPostDetails(int $id): ?Post

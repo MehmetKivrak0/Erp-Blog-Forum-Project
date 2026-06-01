@@ -2,16 +2,14 @@
 
 namespace App\Http\Requests;
 
-use App\Core\Enums\PostStatus;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
 
-class UpdatePostRequest extends FormRequest
+class UpdateTopicRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $post = $this->route('post');
-        return $this->user() && $this->user()->can('update', $post);
+        $topic = $this->route('topic');
+        return $this->user() && $this->user()->can('update', $topic);
     }
 
     public function rules(): array
@@ -20,8 +18,8 @@ class UpdatePostRequest extends FormRequest
             'category_id' => ['sometimes', 'required', 'integer', 'exists:categories,id'],
             'title'       => ['sometimes', 'required', 'string', 'max:255'],
             'content'     => ['sometimes', 'required', 'string'],
-            'status'      => ['nullable', new Enum(PostStatus::class)],
-            'cover_image' => ['nullable', 'image', 'max:5120'], // 5MB max
+            'is_pinned'   => ['nullable', 'boolean'],
+            'is_locked'   => ['nullable', 'boolean'],
         ];
     }
 }

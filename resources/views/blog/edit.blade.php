@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Create New Post | DevConnect')
+@section('title', 'Edit Post | DevConnect')
 @section('body-class', 'bg-background text-on-surface min-h-screen flex flex-col')
 
 @push('styles')
@@ -16,59 +16,48 @@
 <header class="bg-surface sticky top-0 z-50 border-b border-outline-variant h-16">
     <div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-full">
         <div class="flex items-center gap-gutter">
-            <a class="flex items-center gap-stack-sm text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md text-decoration-none" href="{{ route('home') }}">
+            <a class="flex items-center gap-stack-sm text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md text-decoration-none" href="{{ route('blog.show', $post->id) }}">
                 <span class="material-symbols-outlined text-[20px]">arrow_back</span>
-                <span>Back to Dashboard</span>
+                <span>Back to Post</span>
             </a>
             <div class="h-4 w-px bg-outline-variant"></div>
             <div class="flex items-center gap-stack-sm text-on-surface-variant opacity-70">
-                <span class="material-symbols-outlined text-[18px]">cloud_done</span>
-                <span class="font-label-sm text-label-sm">Draft saved</span>
+                <span class="material-symbols-outlined text-[18px]">edit</span>
+                <span class="font-label-sm text-label-sm">Editing mode</span>
             </div>
         </div>
         <div class="flex items-center gap-stack-md">
-            <button type="button" class="px-stack-md py-2 font-label-md text-label-md text-secondary hover:bg-surface-container transition-colors rounded-lg">Preview</button>
-            <button type="submit" form="create-post-form" class="px-stack-lg py-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">
-                @php
-                    $authRole = auth()->user()?->role?->value ?? 'user';
-                    $isAuthStaff = in_array($authRole, ['admin','moderator','developer']);
-                @endphp
-                {{ $isAuthStaff ? 'Yayınla' : 'İncelemeye Gönder' }}
-            </button>
+            <a href="{{ route('blog.show', $post->id) }}" class="px-stack-md py-2 font-label-md text-label-md text-secondary hover:bg-surface-container transition-colors rounded-lg text-decoration-none">Cancel</a>
+            <button type="submit" form="edit-post-form" class="px-stack-lg py-2 bg-primary text-on-primary font-label-md text-label-md rounded-lg shadow-sm hover:opacity-90 active:scale-95 transition-all">Save Changes</button>
         </div>
     </div>
 </header>
 <main class="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-stack-lg">
-    <form id="create-post-form" action="{{ route('blog.create.post') }}" method="POST" enctype="multipart/form-data" class="flex gap-gutter w-full">
+    <form id="edit-post-form" action="{{ route('blog.update', $post->id) }}" method="POST" enctype="multipart/form-data" class="flex gap-gutter w-full">
         @csrf
+        @method('PUT')
         <!-- Main Writing Canvas -->
         <article class="flex-grow max-w-[840px]">
             <!-- Cover Image Upload -->
             <div onclick="document.getElementById('cover-image-input').click()" class="w-full h-64 border-dashed-custom rounded-xl flex flex-col items-center justify-center bg-surface-container-low hover:bg-surface-container-high transition-colors cursor-pointer group mb-stack-lg relative overflow-hidden">
                 <input type="file" name="cover_image" class="hidden" id="cover-image-input" accept="image/*" onchange="previewImage(this)" />
-                <div id="upload-placeholder" class="flex flex-col items-center justify-center">
+                <div id="upload-placeholder" class="flex flex-col items-center justify-center hidden">
                     <div class="p-stack-md rounded-full bg-surface-container-highest text-primary mb-stack-sm group-hover:scale-110 transition-transform">
                         <span class="material-symbols-outlined text-[32px]">add_a_photo</span>
                     </div>
                     <p class="font-headline-md text-headline-md text-on-surface">Upload Cover Image</p>
                     <p class="font-body-md text-body-md text-on-surface-variant mt-1">Recommended size: 1200x630px. Drag and drop here.</p>
                 </div>
-                <img id="image-preview" class="hidden absolute inset-0 w-full h-full object-cover" alt="Image preview" />
+                <img id="image-preview" src="" class="absolute inset-0 w-full h-full object-cover" alt="Image preview" />
             </div>
             <!-- Title Input -->
             <div class="mb-stack-md">
-                <input autofocus="" name="title" class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl p-4 font-headline-xl text-headline-xl text-on-surface placeholder:text-outline-variant transition-all shadow-sm" placeholder="Post Title" type="text" required/>
+                <input autofocus="" name="title" class="w-full bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl p-4 font-headline-xl text-headline-xl text-on-surface placeholder:text-outline-variant transition-all shadow-sm" placeholder="Post Title" type="text" value="{{ old('title', $post->title) }}" required/>
             </div>
             <!-- Tag Selection -->
             <div class="flex flex-wrap items-center gap-stack-sm mb-stack-lg">
                 <span class="material-symbols-outlined text-outline text-[20px]">local_offer</span>
                 <div class="flex flex-wrap items-center gap-stack-sm" id="tags-container">
-                    <span class="tag-badge px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1" data-tag="Internet">
-                        Internet <span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeTag(this)">close</span>
-                    </span>
-                    <span class="tag-badge px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant rounded-full font-label-sm text-label-sm flex items-center gap-1" data-tag="Mobile">
-                        Mobile <span class="material-symbols-outlined text-[14px] cursor-pointer" onclick="removeTag(this)">close</span>
-                    </span>
                     <div class="relative flex items-center">
                         <input type="text" id="new-tag-input" class="hidden px-2 py-0.5 border border-outline-variant rounded-full font-label-sm text-label-sm bg-surface-container-low text-on-surface w-24 focus:outline-none focus:border-primary" placeholder="Press Enter" onkeydown="handleTagInputKey(event)" onblur="hideTagInput()" />
                         <button type="button" id="add-tag-btn" onclick="showTagInput()" class="px-3 py-1 border border-outline-variant text-on-surface-variant rounded-full font-label-sm text-label-sm hover:bg-surface-container transition-colors flex items-center gap-1">
@@ -76,7 +65,7 @@
                         </button>
                     </div>
                 </div>
-                <input type="hidden" name="tags" id="tags-hidden-input" value="Internet,Mobile" />
+                <input type="hidden" name="tags" id="tags-hidden-input" value="" />
             </div>
             <!-- Rich Text Editor Toolbar -->
             <div class="sticky top-[4.1rem] z-40 bg-surface/90 backdrop-blur-md border border-outline-variant rounded-lg p-2 flex items-center gap-1 mb-stack-md shadow-sm">
@@ -93,7 +82,7 @@
             </div>
             <!-- Main Content Area -->
             <div class="relative">
-                <textarea id="content-textarea" name="content" class="w-full min-h-[600px] bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl p-6 font-body-lg text-body-lg text-on-surface placeholder:text-outline-variant resize-none overflow-hidden leading-relaxed transition-all shadow-sm" placeholder="Write your technical masterpiece here..." required></textarea>
+                <textarea id="content-textarea" name="content" class="w-full min-h-[600px] bg-surface-container-lowest border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl p-6 font-body-lg text-body-lg text-on-surface placeholder:text-outline-variant resize-none overflow-hidden leading-relaxed transition-all shadow-sm" placeholder="Write your technical masterpiece here..." required>{{ old('content', $post->content) }}</textarea>
             </div>
         </article>
         <!-- Sidebar Settings -->
@@ -110,73 +99,22 @@
                         </div>
                     </label>
                     <div class="flex flex-col gap-2">
-                        <span class="font-body-md text-body-md text-on-surface">Görünürlük</span>
-                        @php
-                            $authRole2 = auth()->user()?->role?->value ?? 'user';
-                            $isBlogStaff = in_array($authRole2, ['admin','moderator','developer']);
-                        @endphp
+                        <span class="font-body-md text-body-md text-on-surface">Visibility</span>
                         <div class="grid grid-cols-2 gap-2">
-                            <button type="button" onclick="setVisibility('public')" id="visibility-public-btn"
-                                class="px-3 py-2 rounded-lg bg-secondary-container text-on-secondary-container font-label-sm text-label-sm border border-transparent">
-                                {{ $isBlogStaff ? 'Public' : '📨 Moderatöre Gönder' }}
-                            </button>
-                            <button type="button" onclick="setVisibility('private')" id="visibility-private-btn"
-                                class="px-3 py-2 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm border border-outline-variant hover:border-outline transition-colors">
-                                Taslak (Private)
-                            </button>
+                            <button type="button" onclick="setVisibility('public')" id="visibility-public-btn" class="px-3 py-2 rounded-lg bg-secondary-container text-on-secondary-container font-label-sm text-label-sm border border-transparent">Public</button>
+                            <button type="button" onclick="setVisibility('private')" id="visibility-private-btn" class="px-3 py-2 rounded-lg bg-surface-container text-on-surface-variant font-label-sm text-label-sm border border-outline-variant hover:border-outline transition-colors">Private</button>
                         </div>
-                        @if(!$isBlogStaff)
-                        <p class="text-label-sm text-on-surface-variant mt-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-[14px] text-amber-500">info</span>
-                            Gönderiniz moderatör onayından sonra yayınlanır.
-                        </p>
-                        @endif
                         <input type="hidden" name="visibility" id="visibility-input" value="public" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <span class="font-body-md text-body-md text-on-surface">Category</span>
                         <select name="category_id" class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-body-md font-body-md text-on-surface">
                             @foreach($categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                <option value="{{ $category->id }}" {{ $post->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-            </section>
-            <!-- SEO Metadata Card -->
-            <section class="bg-surface border border-outline-variant rounded-xl p-stack-md">
-                <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-stack-md">SEO Metadata</h3>
-                <div class="flex flex-col gap-stack-md">
-                    <div>
-                        <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Meta Title</label>
-                        <input name="meta_title" class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-body-sm font-body-sm" placeholder="Focus keyword title..." type="text"/>
-                    </div>
-                    <div>
-                        <label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Meta Description</label>
-                        <textarea name="meta_description" class="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-1 focus:ring-primary focus:border-primary text-body-sm font-body-sm resize-none" placeholder="Brief summary for search engines..." rows="3"></textarea>
-                    </div>
-                </div>
-            </section>
-            <!-- Scheduling Card -->
-            <section class="bg-surface border border-outline-variant rounded-xl p-stack-md">
-                <h3 class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider mb-stack-md">Publishing</h3>
-                <div class="flex flex-col gap-stack-md">
-                    <div id="publish-now-option" onclick="setPublishing('now')" class="flex items-center gap-stack-sm p-3 rounded-lg bg-surface-container-low border border-primary cursor-pointer transition-colors">
-                        <span class="material-symbols-outlined text-primary">send</span>
-                        <div>
-                            <p class="font-label-md text-label-md text-on-surface">Publish Now</p>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant">Post immediately after clicking Publish</p>
-                        </div>
-                    </div>
-                    <div id="publish-later-option" onclick="setPublishing('later')" class="flex items-center gap-stack-sm p-3 rounded-lg bg-surface border border-outline-variant cursor-pointer hover:border-primary transition-colors opacity-60">
-                        <span class="material-symbols-outlined text-secondary">schedule</span>
-                        <div>
-                            <p class="font-label-md text-label-md text-on-surface">Schedule for later</p>
-                            <p class="font-label-sm text-label-sm text-on-surface-variant">Choose a specific date and time</p>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" name="publishing_type" id="publishing-type-input" value="now" />
             </section>
         </aside>
     </form>
@@ -280,26 +218,18 @@ function setVisibility(type) {
 // Auto-resize Textarea
 const contentTextarea = document.getElementById('content-textarea');
 if (contentTextarea) {
+    // Initial resize on load
+    contentTextarea.style.height = 'auto';
+    contentTextarea.style.height = (contentTextarea.scrollHeight) + 'px';
+    
+    // Resize on input
     contentTextarea.addEventListener('input', function() {
         this.style.height = 'auto';
         this.style.height = (this.scrollHeight) + 'px';
     });
 }
 
-// Publishing Scheduler Toggle
-function setPublishing(type) {
-    document.getElementById('publishing-type-input').value = type;
-    const nowOpt = document.getElementById('publish-now-option');
-    const laterOpt = document.getElementById('publish-later-option');
-    if (type === 'now') {
-        nowOpt.className = 'flex items-center gap-stack-sm p-3 rounded-lg bg-surface-container-low border border-primary cursor-pointer transition-colors';
-        nowOpt.classList.remove('opacity-60');
-        laterOpt.className = 'flex items-center gap-stack-sm p-3 rounded-lg bg-surface border border-outline-variant cursor-pointer hover:border-primary transition-colors opacity-60';
-    } else {
-        laterOpt.className = 'flex items-center gap-stack-sm p-3 rounded-lg bg-surface-container-low border border-primary cursor-pointer transition-colors';
-        laterOpt.classList.remove('opacity-60');
-        nowOpt.className = 'flex items-center gap-stack-sm p-3 rounded-lg bg-surface border border-outline-variant cursor-pointer hover:border-primary transition-colors opacity-60';
-    }
-}
+// Initialize Visibility State
+setVisibility('{{ $post->status->value === 'draft' ? 'private' : 'public' }}');
 </script>
 @endpush

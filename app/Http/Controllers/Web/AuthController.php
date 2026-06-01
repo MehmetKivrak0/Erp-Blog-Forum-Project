@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Auth\Services\AuthService;
 use App\Auth\DTOs\LoginDTO;
 use App\Auth\DTOs\RegisterDTO;
+use App\Core\Enums\UserRole;
 use Illuminate\Http\Request;
 use Exception;
 
@@ -42,7 +43,17 @@ class AuthController extends Controller
 
         try {
             if ($this->authService->login($dto)) {
-                return redirect()->intended(route('home'))->with('success', 'Giriş başarılı.');
+                $user = auth()->user();
+                $userRole = is_object($user->role) ? $user->role->value : $user->role;
+
+                $redirectUrl = match($userRole) {
+                    UserRole::ADMIN->value, 'admin' => route('admin.dashboard'),
+                    UserRole::MODERATOR->value, 'moderator' => route('admin.moderator'),
+                    UserRole::DEVELOPER->value, 'developer' => route('admin.monitor'),
+                    default => route('home'),
+                };
+
+                return redirect()->intended($redirectUrl)->with('success', 'Giriş başarılı.');
             }
 
             return back()->withErrors([
@@ -84,7 +95,18 @@ class AuthController extends Controller
 
         try {
             $this->authService->register($dto);
-            return redirect()->route('home')->with('success', 'Hesabınız başarıyla oluşturuldu ve giriş yapıldı.');
+
+            $user = auth()->user();
+            $userRole = is_object($user->role) ? $user->role->value : $user->role;
+
+            $redirectUrl = match($userRole) {
+                UserRole::ADMIN->value, 'admin' => route('admin.dashboard'),
+                UserRole::MODERATOR->value, 'moderator' => route('admin.moderator'),
+                UserRole::DEVELOPER->value, 'developer' => route('admin.monitor'),
+                default => route('home'),
+            };
+
+            return redirect()->to($redirectUrl)->with('success', 'Hesabınız başarıyla oluşturuldu ve giriş yapıldı.');
         } catch (Exception $e) {
             return back()->withErrors([
                 'email' => $e->getMessage(),

@@ -54,33 +54,29 @@
                 <span id="notifications-badge" class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
             </button>
             <!-- Notifications Dropdown -->
+            @php
+                $latestPendingPosts = \App\Models\Post::where('status', \App\Core\Enums\PostStatus::PENDING->value)->latest()->take(3)->get();
+            @endphp
             <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-xl shadow-xl z-50 p-4 text-left">
                 <div class="flex justify-between items-center border-b border-outline-variant dark:border-slate-800 pb-2 mb-2">
                     <h4 class="text-label-md font-bold text-on-background dark:text-white">Admin Alerts</h4>
                     <button id="clear-notifications" class="text-primary dark:text-primary-fixed-dim text-[12px] hover:underline">Clear all</button>
                 </div>
                 <div class="space-y-3 max-h-60 overflow-y-auto">
-                    <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
+                    @forelse($latestPendingPosts as $pendingPost)
+                    <div onclick="window.location.href='{{ route('admin.moderator') }}'" class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high cursor-pointer">
                         <span class="material-symbols-outlined text-error text-[20px] mt-0.5">report</span>
                         <div>
-                            <p class="text-label-md text-on-background dark:text-white">New user report on thread #105</p>
-                            <p class="text-[10px] text-outline">2 mins ago</p>
+                            <p class="text-label-md text-on-background dark:text-white">Pending post: {{ \Illuminate\Support\Str::limit($pendingPost->title, 32) }}</p>
+                            <p class="text-[10px] text-outline">{{ $pendingPost->created_at->diffForHumans() }}</p>
                         </div>
                     </div>
-                    <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
-                        <span class="material-symbols-outlined text-primary text-[20px] mt-0.5">group</span>
-                        <div>
-                            <p class="text-label-md text-on-background dark:text-white">Sarah requested Moderator role</p>
-                            <p class="text-[10px] text-outline">1 hour ago</p>
-                        </div>
+                    @empty
+                    <div class="p-4 text-center text-label-sm text-outline">
+                        <span class="material-symbols-outlined text-[#15803d] text-[24px] mb-1 block">check_circle</span>
+                        All content queue is clear
                     </div>
-                    <div class="flex gap-3 p-2 rounded hover:bg-surface-hover dark:hover:bg-surface-container-high">
-                        <span class="material-symbols-outlined text-[#15803d] text-[20px] mt-0.5">check_circle</span>
-                        <div>
-                            <p class="text-label-md text-on-background dark:text-white">CPU utilization stable under load</p>
-                            <p class="text-[10px] text-outline">4 hours ago</p>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -102,43 +98,71 @@
         <p class="font-label-md text-label-md text-on-surface-variant dark:text-outline opacity-70">Tech Community Platform</p>
     </div>
     <nav class="flex-1 space-y-1">
+        @if(in_array(auth()->user()->role->value, ['admin']))
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 translate-x-1 active:scale-98" href="{{ route('admin.dashboard') }}">
             <span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
             <span class="font-label-md text-label-md">Admin Overview</span>
         </a>
+        @endif
+        
+        @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 translate-x-1 active:scale-98" href="{{ route('admin.moderator') }}">
             <span class="material-symbols-outlined mr-3" data-icon="gavel">gavel</span>
             <span class="font-label-md text-label-md">Moderator Hub</span>
         </a>
+        @endif
+
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 translate-x-1 active:scale-98" href="{{ route('home') }}">
             <span class="material-symbols-outlined mr-3" data-icon="terminal">terminal</span>
             <span class="font-label-md text-label-md">Dev Portal</span>
         </a>
+
+        @if(in_array(auth()->user()->role->value, ['admin']))
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 translate-x-1 active:scale-98" href="{{ route('admin.dashboard') }}#user-directory-section">
             <span class="material-symbols-outlined mr-3" data-icon="group">group</span>
             <span class="font-label-md text-label-md">User Directory</span>
         </a>
+        @endif
+
+        @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface hover:bg-surface-container-highest dark:hover:bg-surface-container-high transition-all duration-200 translate-x-1 active:scale-98" href="{{ route('admin.moderator') }}">
             <span class="material-symbols-outlined mr-3" data-icon="playlist_add_check">playlist_add_check</span>
             <span class="font-label-md text-label-md">Content Queue</span>
         </a>
+        @endif
+
+        @if(in_array(auth()->user()->role->value, ['admin', 'developer']))
         <a class="flex items-center px-3 py-2 bg-primary-fixed dark:bg-primary-container text-on-primary-fixed dark:text-on-primary-container font-bold rounded-lg translate-x-1 active:scale-98 transition-transform" href="{{ route('admin.monitor') }}">
             <span class="material-symbols-outlined mr-3" data-icon="monitoring">monitoring</span>
             <span class="font-label-md text-label-md">System Health</span>
         </a>
+        @endif
     </nav>
     <div class="mt-auto pt-4 border-t border-border-light dark:border-border-dark space-y-1">
+        @if(in_array(auth()->user()->role->value, ['admin', 'developer']))
         <button id="deploy-btn-sidebar" class="w-full mb-4 py-2 px-4 bg-primary text-on-primary font-label-md rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
             <span class="material-symbols-outlined text-[18px]">rocket_launch</span>
             Deploy Update
         </button>
+        @endif
+        @if(in_array(auth()->user()->role->value, ['admin', 'moderator']))
+            <a class="flex items-center px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-md transition-colors" href="{{ route('admin.moderator') }}">
+                <span class="material-symbols-outlined mr-3">admin_panel_settings</span>
+                Moderator Hub
+            </a>
+            <a class="flex items-center px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-md transition-colors" href="{{ route('admin.categories.index') }}">
+                <span class="material-symbols-outlined mr-3">category</span>
+                Category Management
+            </a>
+        @endif
         <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:bg-surface-container-highest transition-all" href="{{ route('support') }}">
             <span class="material-symbols-outlined mr-3" data-icon="help">help</span>
             <span class="font-label-md text-label-md">Help Center</span>
         </a>
-        <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:bg-surface-container-highest transition-all" href="{{ route('support') }}">
-            <span class="material-symbols-outlined mr-3" data-icon="description">description</span>
-            <span class="font-label-md text-label-md">Documentation</span>
+        {{-- Back to site --}}
+        <a class="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg bg-surface-container hover:bg-primary-container dark:bg-slate-800 dark:hover:bg-slate-700 text-on-surface dark:text-white font-semibold transition-all duration-200 group" href="{{ route('home') }}">
+            <span class="material-symbols-outlined text-primary group-hover:text-on-primary-container transition-colors" data-icon="arrow_back">arrow_back</span>
+            <span class="font-label-md text-label-md">← Siteye Dön</span>
         </a>
     </div>
 </aside>
@@ -181,7 +205,7 @@
                         <h3 class="font-headline-sm text-headline-sm dark:text-white">Core API</h3>
                         <div class="mt-auto">
                             <p class="text-label-sm text-on-surface-variant dark:text-outline">Latency</p>
-                            <p id="latency-val" class="font-mono text-headline-md dark:text-white">42ms</p>
+                            <p id="latency-val" class="font-mono text-headline-md dark:text-white">{{ $dbLatency }}ms</p>
                         </div>
                     </div>
                     <!-- Database Card -->
@@ -193,7 +217,7 @@
                         <h3 class="font-headline-sm text-headline-sm dark:text-white">Database</h3>
                         <div class="mt-auto">
                             <p class="text-label-sm text-on-surface-variant dark:text-outline">Active Conn</p>
-                            <p id="db-conn-val" class="font-mono text-headline-md dark:text-white">1,204</p>
+                            <p id="db-conn-val" class="font-mono text-headline-md dark:text-white">{{ number_format($activeConnections) }}</p>
                         </div>
                     </div>
                     <!-- CDN Card -->
@@ -283,19 +307,19 @@
                         <div class="space-y-2">
                             <div class="flex justify-between text-label-md">
                                 <span class="text-on-surface-variant dark:text-outline">CPU Usage</span>
-                                <span id="cpu-percent" class="font-mono text-primary dark:text-primary-fixed-dim">24.8%</span>
+                                <span id="cpu-percent" class="font-mono text-primary dark:text-primary-fixed-dim">{{ $cpuUsage }}%</span>
                             </div>
                             <div class="w-full bg-surface-container-highest dark:bg-slate-800 rounded-full h-2">
-                                <div id="cpu-bar" class="bg-primary h-2 rounded-full transition-all duration-1000" style="width: 24.8%"></div>
+                                <div id="cpu-bar" class="bg-primary h-2 rounded-full transition-all duration-1000" style="width: {{ $cpuUsage }}%"></div>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <div class="flex justify-between text-label-md">
                                 <span class="text-on-surface-variant dark:text-outline">RAM Utilization</span>
-                                <span id="ram-val" class="font-mono text-primary dark:text-primary-fixed-dim">6.2 GB / 16 GB</span>
+                                <span id="ram-val" class="font-mono text-primary dark:text-primary-fixed-dim">{{ $ramUsage }} GB / {{ $totalRam }} GB</span>
                             </div>
                             <div class="w-full bg-surface-container-highest dark:bg-slate-800 rounded-full h-2">
-                                <div id="ram-bar" class="bg-primary h-2 rounded-full transition-all duration-1000" style="width: 38.7%"></div>
+                                <div id="ram-bar" class="bg-primary h-2 rounded-full transition-all duration-1000" style="width: {{ round(($ramUsage / $totalRam) * 100, 1) }}%"></div>
                             </div>
                         </div>
                         <div class="space-y-2">
@@ -672,30 +696,44 @@
     const dbConnVal = document.getElementById('db-conn-val');
     const cdnCacheVal = document.getElementById('cdn-cache-val');
 
+    let currentCpu = @json($cpuUsage);
+    let currentRam = @json($ramUsage);
+    let totalRamVal = @json($totalRam);
+    let currentLatency = @json($dbLatency);
+    let currentDbConn = @json($activeConnections);
+
     setInterval(() => {
-        // CPU fluctuation
-        const randomCpu = (20 + Math.random() * 15).toFixed(1);
-        cpuPercent.textContent = randomCpu + '%';
-        cpuBar.style.width = randomCpu + '%';
+        // CPU fluctuation around current value
+        const cpuFluct = (Math.random() - 0.5) * 4;
+        const newCpu = Math.max(1, Math.min(99, parseFloat((currentCpu + cpuFluct).toFixed(1))));
+        cpuPercent.textContent = newCpu + '%';
+        cpuBar.style.width = newCpu + '%';
+        currentCpu = newCpu;
 
-        // RAM fluctuation
-        const randomRam = (6.0 + Math.random() * 0.5).toFixed(1);
-        const ramPercent = ((randomRam / 16) * 100).toFixed(1);
-        ramVal.textContent = randomRam + ' GB / 16 GB';
-        ramBar.style.width = ramPercent + '%';
+        // RAM fluctuation around current value
+        const ramFluct = (Math.random() - 0.5) * 0.15;
+        const newRam = Math.max(0.5, Math.min(totalRamVal - 0.5, parseFloat((currentRam + ramFluct).toFixed(1))));
+        const ramBarPercent = ((newRam / totalRamVal) * 100).toFixed(1);
+        ramVal.textContent = newRam + ' GB / ' + totalRamVal + ' GB';
+        ramBar.style.width = ramBarPercent + '%';
+        currentRam = newRam;
 
-        // Latency
-        const randomLatency = Math.floor(38 + Math.random() * 8);
-        latencyVal.textContent = randomLatency + 'ms';
+        // Latency fluctuation
+        const latencyFluct = Math.round((Math.random() - 0.5) * 6);
+        const newLatency = Math.max(1, currentLatency + latencyFluct);
+        latencyVal.textContent = newLatency + 'ms';
+        currentLatency = newLatency;
 
-        // DB Connections
-        const randomDb = Math.floor(1190 + Math.random() * 30);
-        dbConnVal.textContent = randomDb.toLocaleString();
+        // DB Connections (minor fluctuation unless DB connections count changes)
+        const dbFluct = Math.round((Math.random() - 0.5) * 2);
+        const newDbConn = Math.max(1, currentDbConn + dbFluct);
+        dbConnVal.textContent = newDbConn.toLocaleString();
+        currentDbConn = newDbConn;
 
-        // Cache hit
+        // Cache hit fluctuation
         const randomCdn = (83.8 + Math.random() * 1.0).toFixed(1);
         cdnCacheVal.textContent = randomCdn + '%';
-    }, 3000);
+    }, 4000);
 
     // Deploy Modal Dialog Simulation
     const deployBtn = document.getElementById('deploy-btn-sidebar');

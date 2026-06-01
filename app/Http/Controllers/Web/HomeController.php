@@ -20,16 +20,18 @@ class HomeController extends Controller
         protected CommentService $commentService
     ) {}
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        // 1. Kategorileri çek
-        $categories = Category::all();
+        $currentCategory = $request->query('category');
 
-        // 2. Yayınlanmış en son blog yazılarını çek
-        $posts = $this->blogService->getPublishedPosts();
+        // 1. Kategorileri çek (sadece içeriği olan kategoriler)
+        $categories = Category::whereHas('posts')->orWhereHas('forumTopics')->get();
 
-        // 3. Son açılan forum konularını çek (Limit: 5)
-        $topics = $this->forumService->getRecentTopics(5);
+        // 2. Yayınlanmış en son blog yazılarını çek (Kategori filtreli ve sayfalı)
+        $posts = $this->blogService->getPublishedPostsPaginated($currentCategory, 5);
+
+        // 3. Son açılan forum konularını çek (Kategori filtreli)
+        $topics = $this->forumService->getAllTopics($currentCategory)->take(5);
 
         // 4. Son aktiviteleri (yorumları) çek (Limit: 5)
         $recentActivities = $this->commentService->getRecentComments(5);
@@ -42,6 +44,6 @@ class HomeController extends Controller
             'solution_rate' => 94 // Varsayılan/Statik oran
         ];
 
-        return view('home', compact('categories', 'posts', 'topics', 'recentActivities', 'stats'));
+        return view('home', compact('categories', 'posts', 'topics', 'recentActivities', 'stats', 'currentCategory'));
     }
 }
