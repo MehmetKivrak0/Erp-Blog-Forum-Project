@@ -19,4 +19,27 @@ class CreatePostDTO
         public readonly PostStatus $status = PostStatus::PENDING,
         public readonly ?string $coverImage = null
     ) {}
+
+    public static function fromRequest(\App\Http\Requests\StorePostRequest $request): self
+    {
+        $status = $request->validated('status') 
+            ? PostStatus::tryFrom($request->validated('status')) ?? PostStatus::PENDING
+            : PostStatus::PENDING;
+
+        // Cover image'i al ve eğer yüklenmişse dosya yolunu al (şimdilik basit halini yazıyoruz)
+        $coverImage = null;
+        if ($request->hasFile('cover_image')) {
+            $coverImage = $request->file('cover_image')->store('posts/covers', 'public');
+        }
+
+        return new self(
+            userId: auth()->id(),
+            categoryId: (int) $request->validated('category_id'),
+            title: $request->validated('title'),
+            slug: \Illuminate\Support\Str::slug($request->validated('title')),
+            content: $request->validated('content'),
+            status: $status,
+            coverImage: $coverImage
+        );
+    }
 }

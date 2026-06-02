@@ -32,6 +32,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        \Illuminate\Database\Eloquent\Relations\Relation::enforceMorphMap([
+            'post' => \App\Models\Post::class,
+            'forum_topic' => \App\Models\ForumTopic::class,
+        ]);
+
+        \Illuminate\Support\Facades\Event::listen(
+            \Illuminate\Auth\Events\Login::class,
+            \App\Listeners\UpdateUserStreak::class,
+        );
+
+        \App\Models\Post::observe(\App\Observers\PostObserver::class);
+        \App\Models\ForumTopic::observe(\App\Observers\ForumTopicObserver::class);
+        \App\Models\Comment::observe(\App\Observers\CommentObserver::class);
     }
 }

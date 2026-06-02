@@ -48,6 +48,11 @@ class User extends Authenticatable
         return $this->hasMany(ForumTopic::class);
     }
 
+    public function achievements()
+    {
+        return $this->belongsToMany(Achievement::class)->withPivot('awarded_at');
+    }
+
     /**
      * İLİŞKİ: Kullanıcının yaptığı yorumlar.
      */

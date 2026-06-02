@@ -123,12 +123,12 @@ class AdminController extends Controller
         };
 
         // Merge blog pending + forum pending into one queue
-        $postQueue    = $pendingPosts->map(fn(Post $p) => $mapPost($p, 'pending', '7F9CF5', 'EBF4FF'))->values();
-        $topicQueue   = $pendingTopics->map(fn(ForumTopic $t) => $mapTopic($t))->values();
+        $postQueue    = $pendingPosts->toBase()->map(fn(Post $p) => $mapPost($p, 'pending', '7F9CF5', 'EBF4FF'))->values();
+        $topicQueue   = $pendingTopics->toBase()->map(fn(ForumTopic $t) => $mapTopic($t))->values();
         $queueItems   = $postQueue->merge($topicQueue)->values()->all();
 
-        $flaggedItems  = $flaggedPosts->map(fn(Post $p)  => $mapPost($p, 'flagged',  'F87171', 'FEE2E2'))->values()->all();
-        $resolvedItems = $resolvedPosts->map(fn(Post $p) => $mapPost($p, 'resolved', '34D399', 'D1FAE5'))->values()->all();
+        $flaggedItems  = $flaggedPosts->toBase()->map(fn(Post $p)  => $mapPost($p, 'flagged',  'F87171', 'FEE2E2'))->values()->all();
+        $resolvedItems = $resolvedPosts->toBase()->map(fn(Post $p) => $mapPost($p, 'resolved', '34D399', 'D1FAE5'))->values()->all();
 
         return view('admin.moderator-queue', compact(
             'pendingPosts', 'flaggedPosts', 'resolvedPosts',

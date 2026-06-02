@@ -153,7 +153,7 @@
         </button>
         @endif
         <div class="border-t border-outline-variant dark:border-slate-800 pt-4 flex flex-col gap-1">
-            <a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface transition-all duration-200" href="{{ route('support') }}">
+            <a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant dark:text-outline hover:text-on-surface dark:hover:text-on-surface transition-all duration-200" href="{{ route('support.index') }}">
                 <span class="material-symbols-outlined" data-icon="help">help</span>
                 <span class="font-label-md text-label-md">Help Center</span>
             </a>

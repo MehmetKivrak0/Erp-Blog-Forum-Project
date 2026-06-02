@@ -91,7 +91,7 @@
         <footer class="pt-stack-lg border-t border-outline-variant flex flex-wrap justify-center md:justify-start gap-gutter">
             <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
             <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
-            <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="{{ route('support') }}">Support</a>
+            <a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors" href="{{ route('support.index') }}">Support</a>
         </footer>
     </div>
 </main>

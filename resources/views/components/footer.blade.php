@@ -12,7 +12,7 @@
             <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="#">Code of Conduct</a>
             <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="#">Privacy Policy</a>
             <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="#">Terms of Service</a>
-            <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="{{ route('support') }}">Contact</a>
+            <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="{{ route('support.index') }}">Contact</a>
             <a class="text-on-secondary-container hover:text-primary transition-colors font-label-sm text-label-sm text-decoration-none" href="#">GitHub</a>
         </div>
     </div>

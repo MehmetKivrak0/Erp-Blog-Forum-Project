@@ -14,7 +14,7 @@
             <a class="{{ $active === 'feed' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 ease-in-out' }} text-label-md font-label-md text-decoration-none" href="{{ route('home') }}">Feed</a>
             <a class="{{ $active === 'discussions' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 ease-in-out' }} text-label-md font-label-md text-decoration-none" href="{{ route('forum.index') }}">Discussions</a>
             <a class="{{ $active === 'articles' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 ease-in-out' }} text-label-md font-label-md text-decoration-none" href="{{ route('blog.index') }}">Articles</a>
-            <a class="{{ $active === 'support' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 ease-in-out' }} text-label-md font-label-md text-decoration-none" href="{{ route('support') }}">Support</a>
+            <a class="{{ $active === 'support' ? 'text-primary border-b-2 border-primary pb-1 font-bold' : 'text-on-surface-variant font-medium hover:text-primary transition-colors duration-150 ease-in-out' }} text-label-md font-label-md text-decoration-none" href="{{ route('support.index') }}">Support</a>
         </nav>
         
         <!-- Actions -->

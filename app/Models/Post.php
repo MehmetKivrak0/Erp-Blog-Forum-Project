@@ -48,4 +48,12 @@ class Post extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+
+    /**
+     * POLİMORFİK İLİŞKİ: Bu yazıya ait etiketler
+     */
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
 }

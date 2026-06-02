@@ -115,7 +115,7 @@
         <div class="flex space-x-6">
             <a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Privacy Policy</a>
             <a class="font-label-sm text-secondary hover:text-primary transition-colors" href="#">Terms</a>
-            <a class="font-label-sm text-secondary hover:text-primary transition-colors" href="{{ route('support') }}">Support</a>
+            <a class="font-label-sm text-secondary hover:text-primary transition-colors" href="{{ route('support.index') }}">Support</a>
         </div>
         <p class="font-label-sm text-outline">© 2026 DevConnect</p>
     </footer>

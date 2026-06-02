@@ -155,7 +155,7 @@
                 Category Management
             </a>
         @endif
-        <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:bg-surface-container-highest transition-all" href="{{ route('support') }}">
+        <a class="flex items-center px-3 py-2 text-on-surface-variant dark:text-outline hover:bg-surface-container-highest transition-all" href="{{ route('support.index') }}">
             <span class="material-symbols-outlined mr-3" data-icon="help">help</span>
             <span class="font-label-md text-label-md">Help Center</span>
         </a>

@@ -119,7 +119,7 @@
                 <h2 class="text-headline-lg font-headline-lg text-on-surface">Submit a Ticket</h2>
                 <p class="text-body-md font-body-md text-on-surface-variant">Can't find what you're looking for? Our developer advocates are here to help.</p>
             </div>
-            <form action="{{ route('support.submit') }}" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-stack-lg" method="POST">
+            <form action="{{ route('support.store') }}" class="p-8 grid grid-cols-1 md:grid-cols-2 gap-stack-lg" method="POST" enctype="multipart/form-data">
                 @csrf
                 <!-- Subject -->
                 <div class="md:col-span-2 flex flex-col gap-2">
@@ -166,14 +166,14 @@
                 <!-- File Upload -->
                 <div class="md:col-span-2 flex flex-col gap-2">
                     <label class="text-label-md font-label-md text-on-surface">Screenshots / Attachments</label>
-                    <div class="border-2 border-dashed border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center gap-4 bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer">
+                    <label for="attachment" class="border-2 border-dashed border-outline-variant rounded-lg p-8 flex flex-col items-center justify-center gap-4 bg-surface-container-lowest hover:bg-surface-container-low transition-colors cursor-pointer w-full">
                         <span class="material-symbols-outlined text-[48px] text-outline">cloud_upload</span>
                         <div class="text-center">
                             <p class="text-body-md font-semibold text-on-surface">Click to upload or drag and drop</p>
                             <p class="text-label-sm text-on-surface-variant">PNG, JPG, PDF, or TXT up to 10MB</p>
                         </div>
-                        <input class="hidden" type="file"/>
-                    </div>
+                        <input class="hidden" type="file" id="attachment" name="attachment"/>
+                    </label>
                 </div>
                 <!-- Submit Button -->
                 <div class="md:col-span-2 flex justify-end">

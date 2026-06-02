@@ -9,6 +9,9 @@ use App\Http\Controllers\Web\AuthController;
 // Main / Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Newsletter
+Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
 // Auth (Guest)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -41,6 +44,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/forum/replies/{comment}/vote', [ForumController::class, 'voteReply'])->name('forum.reply.vote');
     Route::post('/forum/{topic}/bookmark', [ForumController::class, 'bookmark'])->name('forum.topic.bookmark');
     Route::post('/forum/{topic}/solution', [ForumController::class, 'toggleSolution'])->name('forum.topic.solution');
+
+    // Messages
+    Route::get('/messages', [\App\Http\Controllers\Web\MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{id}', [\App\Http\Controllers\Web\MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{conversationId}', [\App\Http\Controllers\Web\MessageController::class, 'store'])->name('messages.store');
 });
 
 // Blog (Açık)
@@ -51,22 +59,14 @@ Route::get('/blog/{post}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/forum', [ForumController::class, 'index'])->name('forum.index');
 Route::get('/forum/{topic}', [ForumController::class, 'show'])->name('forum.thread');
 
-// Support
-Route::get('/support', function () {
-    return view('support');
-})->name('support');
-
-Route::post('/support', function (\Illuminate\Http\Request $request) {
-    // Placeholder: validate and store ticket
-    $request->validate([
-        'subject' => 'required|string|max:255',
-        'message' => 'required|string',
-        'category' => 'required|string',
-    ]);
-
-    // In production this would persist the ticket and notify staff
-    return redirect()->route('support')->with('success', 'Destek talebiniz başarıyla alındı. Ekibimiz 24 iş saati içinde size geri dönecektir.');
-})->name('support.submit');
+// Support (Açık form artık yok, sadece kayıtlı kullanıcılar)
+Route::middleware('auth')->prefix('support')->name('support.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Web\SupportController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\Web\SupportController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\Web\SupportController::class, 'store'])->name('store');
+    Route::get('/{ticket}', [\App\Http\Controllers\Web\SupportController::class, 'show'])->name('show');
+    Route::post('/{ticket}/reply', [\App\Http\Controllers\Web\SupportController::class, 'reply'])->name('reply');
+});
 
 use App\Http\Controllers\Web\AdminController;
 
@@ -94,6 +94,12 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/posts/{id}/reject', [AdminController::class, 'rejectPost'])->name('admin.posts.reject');
         Route::post('/topics/{id}/approve', [AdminController::class, 'approveTopic'])->name('admin.topics.approve');
         Route::post('/topics/{id}/reject', [AdminController::class, 'rejectTopic'])->name('admin.topics.reject');
+
+        // Ticket Management
+        Route::get('/tickets', [\App\Http\Controllers\Web\Admin\TicketController::class, 'index'])->name('admin.tickets.index');
+        Route::get('/tickets/{ticket}', [\App\Http\Controllers\Web\Admin\TicketController::class, 'show'])->name('admin.tickets.show');
+        Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Web\Admin\TicketController::class, 'reply'])->name('admin.tickets.reply');
+        Route::put('/tickets/{ticket}/status', [\App\Http\Controllers\Web\Admin\TicketController::class, 'updateStatus'])->name('admin.tickets.status');
     });
 
     // Admin ve Developer

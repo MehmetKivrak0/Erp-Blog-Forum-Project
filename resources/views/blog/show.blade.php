@@ -61,15 +61,16 @@
         <!-- Main Content Area -->
         <article class="lg:col-span-8 bg-surface-container-lowest p-stack-lg md:p-12 rounded-xl border border-outline-variant shadow-sm">
             <div class="prose max-w-none prose-slate">
-                {!! nl2br(e($post->content)) !!}
+                {!! $post->parsed_content !!}
             </div>
             <!-- Tags -->
+            @if($post->tags->isNotEmpty())
             <div class="mt-stack-lg pt-stack-lg border-t border-outline-variant flex flex-wrap gap-2">
-                <span class="px-4 py-1.5 bg-secondary-container text-on-secondary-container font-label-md rounded-lg hover:bg-secondary-fixed transition-colors cursor-pointer">#Backend</span>
-                <span class="px-4 py-1.5 bg-secondary-container text-on-secondary-container font-label-md rounded-lg hover:bg-secondary-fixed transition-colors cursor-pointer">#SystemsDesign</span>
-                <span class="px-4 py-1.5 bg-secondary-container text-on-secondary-container font-label-md rounded-lg hover:bg-secondary-fixed transition-colors cursor-pointer">#Scalability</span>
-                <span class="px-4 py-1.5 bg-secondary-container text-on-secondary-container font-label-md rounded-lg hover:bg-secondary-fixed transition-colors cursor-pointer">#Architecture</span>
+                @foreach($post->tags as $tag)
+                <a href="{{ route('blog.index', ['tag' => $tag->slug]) }}" class="text-decoration-none px-4 py-1.5 bg-secondary-container text-on-secondary-container font-label-md rounded-lg hover:bg-secondary-fixed transition-colors cursor-pointer">#{{ $tag->name }}</a>
+                @endforeach
             </div>
+            @endif
             <!-- Comments Section -->
             <section class="mt-stack-lg pt-stack-lg">
                 <h2 class="font-headline-lg text-headline-lg mb-stack-md">Discussion ({{ $post->comments->count() }})</h2>
@@ -114,10 +115,18 @@
                     <span class="material-symbols-outlined text-primary" data-icon="list">list</span>
                     Table of Contents
                 </h4>
-                <ul class="space-y-stack-sm text-on-surface-variant font-label-md">
-                    <li><a class="block py-1 hover:text-primary border-l-2 border-transparent hover:border-primary pl-3 transition-all text-decoration-none" href="#foundations-of-scale">The Foundations of Scale</a></li>
-                    <li><a class="block py-1 hover:text-primary border-l-2 border-transparent hover:border-primary pl-3 transition-all text-decoration-none" href="#gossip-protocol-in-go">Gossip Protocol in Go</a></li>
-                    <li><a class="block py-1 hover:text-primary border-l-2 border-transparent hover:border-primary pl-3 transition-all text-decoration-none" href="#addressing-consistency">Addressing Consistency</a></li>
+                <ul class="space-y-stack-sm text-on-surface-variant font-label-md" id="toc-menu">
+                    @forelse($toc as $item)
+                        <li>
+                            <a class="block py-1 hover:text-primary border-l-2 border-transparent hover:border-primary pl-3 transition-all text-decoration-none" 
+                               style="margin-left: {{ ($item['level'] - 2) * 1 }}rem;"
+                               href="#{{ $item['id'] }}">
+                                {{ $item['title'] }}
+                            </a>
+                        </li>
+                    @empty
+                        <li class="pl-3">İçindekiler bulunmuyor.</li>
+                    @endforelse
                 </ul>
             </div>
             <!-- Related Posts -->
@@ -141,11 +150,19 @@
                 <a href="{{ route('home') }}" class="w-full text-center block mt-stack-md py-2 text-label-md text-primary border border-primary/20 rounded-lg hover:bg-primary/5 transition-colors text-decoration-none">View All Articles</a>
             </div>      </div>
             <!-- Ad/Promo Space -->
-            <div class="relative overflow-hidden bg-primary-container p-6 rounded-xl text-on-primary-container shadow-lg border border-primary">
+            <div class="relative overflow-hidden bg-primary-container p-6 rounded-xl text-on-primary-container shadow-lg border border-primary" id="newsletter-widget">
                 <div class="relative z-10">
                     <h5 class="font-headline-md mb-2">Join the Community</h5>
                     <p class="text-label-md opacity-90 mb-4">Get the latest technical deep dives delivered straight to your inbox.</p>
-                    <button class="bg-white text-primary w-full py-2 rounded-lg font-bold shadow-sm hover:bg-opacity-95 transition-colors">Subscribe Now</button>
+                    <form id="newsletter-form" method="POST" action="{{ route('newsletter.subscribe') }}" class="flex flex-col gap-2">
+                        @csrf
+                        <input type="email" name="email" placeholder="Email address" required class="w-full px-3 py-2 rounded-lg text-body-md text-slate-900 border-none focus:ring-2 focus:ring-primary focus:outline-none">
+                        <button type="submit" class="bg-white text-primary w-full py-2 rounded-lg font-bold shadow-sm hover:bg-opacity-95 transition-colors flex justify-center items-center gap-2">
+                            <span>Subscribe Now</span>
+                            <span class="material-symbols-outlined text-[18px] hidden" id="newsletter-spinner">progress_activity</span>
+                        </button>
+                    </form>
+                    <p id="newsletter-message" class="text-label-sm mt-2 hidden"></p>
                 </div>
                 <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
             </div>
@@ -169,5 +186,80 @@ function copyCode(button) {
         }, 2000);
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Newsletter AJAX
+    const form = document.getElementById('newsletter-form');
+    const messageEl = document.getElementById('newsletter-message');
+    const spinner = document.getElementById('newsletter-spinner');
+    
+    if(form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            spinner.classList.remove('hidden');
+            spinner.classList.add('animate-spin');
+            messageEl.classList.add('hidden');
+            
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json().then(data => ({status: response.status, body: data})))
+            .then(res => {
+                spinner.classList.add('hidden');
+                spinner.classList.remove('animate-spin');
+                messageEl.classList.remove('hidden');
+                
+                if(res.status === 200 || res.status === 201) {
+                    messageEl.textContent = res.body.message || 'Subscribed successfully!';
+                    messageEl.className = 'text-label-sm mt-2 text-green-200';
+                    form.reset();
+                } else {
+                    messageEl.textContent = res.body.message || 'An error occurred.';
+                    messageEl.className = 'text-label-sm mt-2 text-red-200';
+                }
+            })
+            .catch(error => {
+                spinner.classList.add('hidden');
+                spinner.classList.remove('animate-spin');
+                messageEl.classList.remove('hidden');
+                messageEl.textContent = 'Connection error.';
+                messageEl.className = 'text-label-sm mt-2 text-red-200';
+            });
+        });
+    }
+
+    // TOC Active State highlighting
+    const tocLinks = document.querySelectorAll('#toc-menu a');
+    const headings = Array.from(tocLinks).map(link => {
+        const href = link.getAttribute('href');
+        if(href.startsWith('#') && href.length > 1) {
+            return document.getElementById(href.substring(1));
+        }
+        return null;
+    }).filter(h => h);
+
+    if ('IntersectionObserver' in window && headings.length > 0) {
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    tocLinks.forEach(link => {
+                        link.classList.remove('border-primary', 'text-primary');
+                        if (link.getAttribute('href') === '#' + entry.target.id) {
+                            link.classList.add('border-primary', 'text-primary');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-20% 0px -80% 0px' });
+
+        headings.forEach(h => observer.observe(h));
+    }
+});
 </script>
 @endpush

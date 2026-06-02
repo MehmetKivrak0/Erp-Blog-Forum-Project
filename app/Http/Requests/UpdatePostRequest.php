@@ -11,6 +11,12 @@ class UpdatePostRequest extends FormRequest
     public function authorize(): bool
     {
         $post = $this->route('post');
+        
+        // Eğer route model binding tanımlı değilse ve $post bir ID (string/int) ise:
+        if (! $post instanceof \App\Models\Post) {
+            $post = \App\Models\Post::findOrFail($post);
+        }
+
         return $this->user() && $this->user()->can('update', $post);
     }
 

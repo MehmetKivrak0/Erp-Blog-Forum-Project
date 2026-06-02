@@ -26,13 +26,35 @@ class CommentService extends BaseService
     }
 
     /**
-     * En son yapılan yorumları/aktiviteleri getirir.
+     * Yorum günceller.
      */
-    public function getRecentComments(int $limit = 5)
+    public function updateComment(Comment $comment, \App\Comment\DTOs\UpdateCommentDTO $dto): Comment
+    {
+        return $this->executeSafe(function () use ($comment, $dto) {
+            $comment->update([
+                'content' => $dto->content,
+            ]);
+            return $comment;
+        }, 'Yorum güncellenirken sistemsel bir hata oluştu.');
+    }
+
+    /**
+     * Yorum siler.
+     */
+    public function deleteComment(Comment $comment): bool
+    {
+        return $this->executeSafe(function () use ($comment) {
+            return $comment->delete();
+        }, 'Yorum silinirken sistemsel bir hata oluştu.');
+    }
+
+    /**
+     * En son yapılan yorumları/aktiviteleri sayfalayarak getirir.
+     */
+    public function getRecentComments(int $perPage = 10)
     {
         return Comment::with(['user', 'commentable'])
             ->latest()
-            ->limit($limit)
-            ->get();
+            ->paginate($perPage);
     }
 }

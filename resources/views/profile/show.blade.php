@@ -59,10 +59,10 @@
                     </div>
                 </div>
                 <div class="flex gap-stack-sm md:mt-16 pb-stack-sm">
-                    <button class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-lg font-label-md transition-all flex items-center gap-2 shadow-sm">
+                    <a href="{{ route('messages.index') }}" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-lg font-label-md transition-all flex items-center gap-2 shadow-sm">
                         <span class="material-symbols-outlined text-[18px]">mail</span>
-                        Direct Message
-                    </button>
+                        My Messages
+                    </a>
                     <button class="border border-border-light hover:bg-surface-hover p-2 rounded-lg transition-all">
                         <span class="material-symbols-outlined text-secondary">more_horiz</span>
                     </button>
@@ -93,29 +93,20 @@
             <div class="bento-card bg-white border border-border-light p-stack-md rounded-xl">
                 <h3 class="font-headline-md text-headline-md mb-stack-md text-on-surface">Achievements</h3>
                 <div class="grid grid-cols-3 gap-stack-sm">
-                    <!-- First Post -->
-                    <div class="flex flex-col items-center p-stack-sm group {{ $achievements['first_post'] ? '' : 'opacity-40' }}">
+                    @forelse($userAchievements->take(3) as $ach)
+                    <div class="flex flex-col items-center p-stack-sm group">
                         <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">{{ $ach->icon }}</span>
                         </div>
-                        <span class="text-label-sm mt-2 text-center text-on-surface">First Post</span>
+                        <span class="text-label-sm mt-2 text-center text-on-surface">{{ $ach->name }}</span>
                     </div>
-                    <!-- Active Chatter -->
-                    <div class="flex flex-col items-center p-stack-sm group {{ $achievements['active_chatter'] ? '' : 'opacity-40' }}">
-                        <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">chat</span>
+                    @empty
+                        <div class="col-span-3 text-center text-on-surface-variant text-label-sm py-2">
+                            Henüz madalya kazanılmadı.
                         </div>
-                        <span class="text-label-sm mt-2 text-center text-on-surface">Active Chatter</span>
-                    </div>
-                    <!-- Staff / Developer -->
-                    <div class="flex flex-col items-center p-stack-sm group {{ $achievements['core_contributor'] ? '' : 'opacity-40' }}">
-                        <div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' 1;">shield</span>
-                        </div>
-                        <span class="text-label-sm mt-2 text-center text-on-surface">Core Contributor</span>
-                    </div>
+                    @endforelse
                 </div>
-                <button class="w-full mt-stack-md text-label-md text-primary font-semibold py-2 hover:bg-primary-fixed/30 rounded-lg transition-colors">View All 12 Medals</button>
+                <button onclick="document.getElementById('achievements-modal').classList.remove('hidden')" class="w-full mt-stack-md text-label-md text-primary font-semibold py-2 hover:bg-primary-fixed/30 rounded-lg transition-colors">View All {{ $allAchievements->count() }} Medals</button>
             </div>
         </div>
         <div class="md:col-span-8">
@@ -230,6 +221,42 @@
     </div>
 </main>
 <x-footer class="bg-surface-container-lowest border-t border-border-light mt-stack-lg" />
+
+<!-- Achievements Modal -->
+<div id="achievements-modal" class="fixed inset-0 z-50 hidden bg-black/50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden border border-border-light">
+        <div class="p-stack-md border-b border-border-light flex justify-between items-center bg-surface-container-lowest">
+            <h2 class="font-headline-md text-headline-md flex items-center gap-2 text-on-surface">
+                <span class="material-symbols-outlined text-primary">workspace_premium</span>
+                All Achievements
+            </h2>
+            <button onclick="document.getElementById('achievements-modal').classList.add('hidden')" class="text-secondary hover:text-primary transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-stack-md overflow-y-auto flex-1">
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-stack-md">
+                @foreach($allAchievements as $ach)
+                    @php
+                        $hasEarned = $userAchievements->has($ach->key);
+                    @endphp
+                    <div class="flex flex-col items-center p-stack-sm rounded-lg border {{ $hasEarned ? 'border-primary/30 bg-primary-container/10' : 'border-border-light opacity-50 bg-surface-container-lowest' }}">
+                        <div class="w-12 h-12 rounded-full {{ $hasEarned ? 'bg-primary text-white' : 'bg-surface-container-highest text-secondary' }} flex items-center justify-center mb-2">
+                            <span class="material-symbols-outlined text-[24px]" style="font-variation-settings: 'FILL' {{ $hasEarned ? '1' : '0' }};">{{ $ach->icon }}</span>
+                        </div>
+                        <h4 class="font-semibold text-label-md text-center text-on-surface">{{ $ach->name }}</h4>
+                        <p class="text-label-sm text-center text-on-surface-variant mt-1">{{ $ach->description }}</p>
+                        @if($hasEarned)
+                            <span class="text-[10px] text-primary font-semibold mt-2">Kazanıldı</span>
+                        @else
+                            <span class="text-[10px] text-secondary mt-2">Kilitli</span>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')

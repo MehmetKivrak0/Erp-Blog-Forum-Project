@@ -32,10 +32,10 @@
         <article class="flex-grow max-w-[840px]">
             <!-- Title Input -->
             <div class="mb-stack-md">
-                <input autofocus="" name="title" class="w-full bg-transparent border-none focus:ring-0 p-0 font-headline-xl text-headline-xl text-on-surface placeholder:text-outline-variant outline-none border-b border-transparent focus:border-outline-variant pb-2" placeholder="Topic Title" type="text" value="{{ old('title', $topic->title) }}" required/>
+                <input autofocus="" name="title" class="w-full bg-white border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-lg px-4 py-3 font-headline-xl text-headline-xl text-on-surface placeholder:text-secondary outline-none transition-all shadow-sm" placeholder="Topic Title" type="text" value="{{ old('title', $topic->title) }}" required/>
             </div>
             <!-- Rich Text Editor Toolbar -->
-            <div class="sticky top-[4.1rem] z-40 bg-surface/90 backdrop-blur-md border border-outline-variant rounded-lg p-2 flex items-center gap-1 mb-stack-md shadow-sm">
+            <div class="sticky top-[4.1rem] z-40 bg-white border border-outline-variant border-b-0 rounded-t-lg p-2 flex items-center gap-1 shadow-sm">
                 <button type="button" onclick="insertFormat('**', '**')" class="p-2 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Bold"><span class="material-symbols-outlined">format_bold</span></button>
                 <button type="button" onclick="insertFormat('*', '*')" class="p-2 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Italic"><span class="material-symbols-outlined">format_italic</span></button>
                 <button type="button" onclick="insertFormat('[', '](url)')" class="p-2 hover:bg-surface-container-highest rounded text-on-surface-variant transition-colors" title="Link"><span class="material-symbols-outlined">link</span></button>
@@ -49,7 +49,7 @@
             </div>
             <!-- Main Content Area -->
             <div class="relative">
-                <textarea name="content" class="w-full min-h-[500px] bg-transparent border-none focus:ring-0 p-0 font-body-lg text-body-lg text-on-surface placeholder:text-outline-variant resize-none leading-relaxed outline-none" placeholder="Describe your topic or question here..." required>{{ old('content', $topic->content) }}</textarea>
+                <textarea name="content" oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'" style="min-height: 300px;" class="w-full bg-white border border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary rounded-b-lg p-4 font-body-lg text-body-lg text-on-surface placeholder:text-secondary resize-none leading-relaxed outline-none transition-shadow shadow-sm overflow-hidden" placeholder="Describe your topic or question here..." required>{{ old('content', $topic->content) }}</textarea>
             </div>
         </article>
         <!-- Sidebar Settings -->

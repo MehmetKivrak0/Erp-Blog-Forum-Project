@@ -39,7 +39,7 @@ class BaseService
             Log::error($errorMessage . ' | Sistem Hatası: ' . $e->getMessage());
 
             // Hatayı dışarı fırlat ki API/Controller bunu yakalayıp kullanıcıya temiz bir mesaj dönsün
-            throw new Exception($errorMessage);
+            throw new Exception($errorMessage, 0, $e);
         }
     }
 }

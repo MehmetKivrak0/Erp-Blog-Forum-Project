@@ -10,7 +10,7 @@ class StorePostRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Şimdilik herkese açık yapıyoruz
+        return auth()->check();
     }
 
     public function rules(): array

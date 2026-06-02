@@ -25,7 +25,7 @@ class StoreCommentRequest extends FormRequest
         return [
             'content' => ['required', 'string', 'min:3'],
             'commentable_id' => ['required', 'integer'],
-            'commentable_type' => ['required', 'string', 'in:App\Models\Post,App\Models\ForumTopic'], // Sadece bu iki modele izin veriyoruz
+            'commentable_type' => ['required', 'string', 'in:post,forum_topic'], // Morph map alias'ları
         ];
     }
 }

@@ -32,6 +32,17 @@ class BlogController extends Controller
 
     public function show(Post $post)
     {
+        $post->load('tags');
+
+        // Parse Markdown to HTML if needed (assuming simple markdown or html is stored)
+        $htmlContent = Str::markdown($post->content);
+        
+        $tocGenerator = new \App\Services\TocGenerator();
+        $tocData = $tocGenerator->generate($htmlContent);
+        
+        $post->parsed_content = $tocData['content'];
+        $toc = $tocData['toc'];
+
         // Benzer yazılar (kategorisine göre)
         $relatedPosts = Post::where('category_id', $post->category_id)
             ->where('id', '!=', $post->id)
@@ -40,7 +51,7 @@ class BlogController extends Controller
             ->limit(3)
             ->get();
 
-        return view('blog.show', compact('post', 'relatedPosts'));
+        return view('blog.show', compact('post', 'relatedPosts', 'toc'));
     }
 
     public function create()

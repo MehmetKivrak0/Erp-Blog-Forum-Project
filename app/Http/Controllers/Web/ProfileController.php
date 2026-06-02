@@ -9,6 +9,7 @@ class ProfileController extends Controller
 {
     public function show()
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         // 1. Fetch activities
@@ -40,17 +41,19 @@ class ProfileController extends Controller
         // 2. Fetch user's forum topics
         $myTopics = $user->forumTopics()->withCount('comments')->latest()->get();
 
-        // 3. Calculate dynamic streak
-        $activityCount = $user->posts()->count() + $user->forumTopics()->count() + $user->comments()->count();
-        $streak = min(30, max(1, $activityCount * 2 + ($user->id % 5)));
+        // 3. Get real streak
+        $streak = $user->current_streak ?? 0;
 
-        // 4. Calculate achievements
+        // 4. Fetch achievements
+        $userAchievements = $user->achievements->keyBy('key');
+        $allAchievements = \App\Models\Achievement::all();
+
         $achievements = [
-            'first_post' => ($user->posts()->count() > 0 || $user->forumTopics()->count() > 0),
-            'active_chatter' => ($user->comments()->count() >= 5),
-            'core_contributor' => in_array($user->role->value ?? $user->role, ['admin', 'developer', 'moderator']),
+            'first_post' => $userAchievements->has('first_post'),
+            'active_chatter' => $userAchievements->has('active_chatter'),
+            'core_contributor' => $userAchievements->has('core_contributor') || in_array($user->role->value ?? $user->role, ['admin', 'developer', 'moderator']),
         ];
 
-        return view('profile.show', compact('user', 'activities', 'myTopics', 'streak', 'achievements'));
+        return view('profile.show', compact('user', 'activities', 'myTopics', 'streak', 'achievements', 'allAchievements', 'userAchievements'));
     }
 }
