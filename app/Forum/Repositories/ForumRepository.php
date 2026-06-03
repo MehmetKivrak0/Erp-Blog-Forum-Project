@@ -44,7 +44,7 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
     /**
      * Tüm forum konularını getirir.
      */
-    public function getAllTopics(?string $categorySlug = null): Collection
+    public function getAllTopics(?string $categorySlug = null, ?string $search = null): Collection
     {
         $query = $this->model
             ->where('is_pending', false)  // Hide pending topics from public listing
@@ -54,6 +54,13 @@ class ForumRepository extends BaseRepository implements ForumRepositoryInterface
         if ($categorySlug) {
             $query->whereHas('category', function ($q) use ($categorySlug) {
                 $q->where('slug', $categorySlug);
+            });
+        }
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
             });
         }
 

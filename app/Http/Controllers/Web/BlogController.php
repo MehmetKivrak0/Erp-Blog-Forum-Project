@@ -120,7 +120,7 @@ class BlogController extends Controller
         $dto = new \App\Comment\DTOs\CreateCommentDTO(
             userId: auth()->id() ?? 1,
             commentableId: $post->id,
-            commentableType: Post::class,
+            commentableType: $post->getMorphClass(),
             content: $request->comment
         );
 

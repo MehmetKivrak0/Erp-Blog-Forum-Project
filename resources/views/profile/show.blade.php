@@ -16,17 +16,17 @@
 @endpush
 
 @section('content')
-<x-navigation class="bg-background-light border-b border-border-light fixed top-0 w-full" />
+<x-navigation />
 <main class="flex-grow pt-16 pb-24 max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop">
-    <div class="relative mt-stack-lg rounded-xl overflow-hidden shadow-sm border border-border-light">
-        <div class="h-48 md:h-64 w-full relative">
-            <img alt="Cover Image" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlbuAY3AfkzwDRbVZ3unr6npf6HHDBbL6rqUak-BpoHFgMTXgoH5z8fBAyG6AXWCjldpjr2KjxVsNwDB0_7PhLdiZswh_M3cIRs5Bl_0XvAMSUm-UdfG0j6Bv7KIpBQiOVqS_LVNzEnuGg_vrS5iD-3LH5-muPO2HQdMhiopRubd49yw_uflWHLkrAlCQL2lp56dxeQKch2P6Qlq3L1Q8o5S12_okEROT0RRgRxizB4GWSuvz91nt7Nq2dJy8bYIzqkcIoh1OK4rY"/>
+    <div class="relative rounded-xl shadow-sm border border-border-light bg-white">
+        <div class="h-48 md:h-64 w-full relative rounded-t-xl overflow-hidden">
+            <img alt="Cover Image" class="w-full h-full object-cover" src="{{ $user->cover_image ?? 'https://picsum.photos/seed/'.$user->id.'/1200/400' }}"/>
             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
         </div>
         <div class="bg-white p-stack-md relative pt-0 md:pt-0">
             <div class="flex flex-col md:flex-row items-end md:items-center -mt-12 md:-mt-16 gap-stack-md md:gap-stack-lg px-stack-md">
                 <div class="relative h-24 w-24 md:h-32 md:32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
-                    <img alt="User avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcQI3n2rB_Jp7OAtHKUbNMje3QoI2y8qx1YQW7lxxNq9qX1nPDp0nwdqTFGbITlU681ssyqK0hl1lYtobuGTXhPb83_WusjWymT0XAGOie7HaDrlPxYqobPQyZAjqwk1XZV-iJuNSFYfoMIqaO1JzTCWTbY_nA93qTh9Lgs6EJqKrICyn_4fjmlXlxMpEDDsq0wFfZu1sDX1HA301hCdQfEZuxZLD3qeY5BPUnWEQM_z5vvVzZMYueKbC3y2dlL0uPFe999KptTa4"/>
+                    <img alt="User avatar" class="w-full h-full object-cover" src="{{ $user->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($user->name).'&color=7F9CF5&background=EBF4FF&size=128' }}"/>
                 </div>
                 <div class="flex-1 pb-stack-sm text-center md:text-left mt-2 md:mt-16">
                     <h1 class="font-headline-xl text-headline-xl text-on-surface">{{ $user->name }}</h1>
@@ -59,13 +59,35 @@
                     </div>
                 </div>
                 <div class="flex gap-stack-sm md:mt-16 pb-stack-sm">
-                    <a href="{{ route('messages.index') }}" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-lg font-label-md transition-all flex items-center gap-2 shadow-sm">
-                        <span class="material-symbols-outlined text-[18px]">mail</span>
-                        My Messages
-                    </a>
-                    <button class="border border-border-light hover:bg-surface-hover p-2 rounded-lg transition-all">
-                        <span class="material-symbols-outlined text-secondary">more_horiz</span>
-                    </button>
+                    @if($isOwnProfile)
+                        <a href="{{ route('messages.index') }}" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-lg font-label-md transition-all flex items-center gap-2 shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">mail</span>
+                            My Messages
+                        </a>
+                        <div class="relative">
+                            <button onclick="document.getElementById('profile-dropdown').classList.toggle('hidden')" class="border border-border-light hover:bg-surface-hover p-2 rounded-lg transition-all">
+                                <span class="material-symbols-outlined text-secondary">more_horiz</span>
+                            </button>
+                            <div id="profile-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-border-light rounded-lg shadow-lg z-10 py-1">
+                                <button onclick="document.getElementById('avatar-input').click(); document.getElementById('profile-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-surface-hover text-label-md flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">account_circle</span> Change Avatar</button>
+                                <button onclick="document.getElementById('cover-input').click(); document.getElementById('profile-dropdown').classList.add('hidden');" class="w-full text-left px-4 py-2 hover:bg-surface-hover text-label-md flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">wallpaper</span> Change Cover</button>
+                            </div>
+                        </div>
+                        <!-- Hidden Forms -->
+                        <form id="avatar-form" action="{{ route('profile.images') }}" method="POST" enctype="multipart/form-data" class="hidden">
+                            @csrf
+                            <input type="file" name="avatar" id="avatar-input" accept="image/*" onchange="document.getElementById('avatar-form').submit();">
+                        </form>
+                        <form id="cover-form" action="{{ route('profile.images') }}" method="POST" enctype="multipart/form-data" class="hidden">
+                            @csrf
+                            <input type="file" name="cover_image" id="cover-input" accept="image/*" onchange="document.getElementById('cover-form').submit();">
+                        </form>
+                    @else
+                        <a href="{{ route('messages.show', $user->id) }}" class="bg-primary hover:bg-primary-container text-white px-6 py-2 rounded-lg font-label-md transition-all flex items-center gap-2 shadow-sm">
+                            <span class="material-symbols-outlined text-[18px]">send</span>
+                            Mesaj Gönder
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

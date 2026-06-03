@@ -5,7 +5,7 @@
 
 @section('content')
 <!-- TopNavBar -->
-<x-navigation active="feed" class="bg-surface-container-lowest border-b border-border-light" />
+<x-navigation active="feed" />
 <main class="flex-grow max-w-container-max mx-auto px-margin-desktop py-stack-lg w-full">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-gutter">
         <!-- Left Column (Main Feed) -->
@@ -18,26 +18,26 @@
                 @endforeach
             </div>
             <!-- Trending Blog Posts Feed -->
-            <div class="space-y-stack-md">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
                 @forelse($posts as $post)
-                    <article class="group bg-surface-container-lowest border border-border-light rounded-xl overflow-hidden flex flex-col md:flex-row hover:shadow-lg transition-all duration-300">
-                        <div class="md:w-64 h-48 md:h-auto overflow-hidden">
-                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $post->cover_image ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
+                    <article class="group bg-surface-container-lowest border border-border-light rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300">
+                        <div class="w-full h-48 overflow-hidden relative">
+                            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="{{ $post->cover_image ? (Str::startsWith($post->cover_image, 'http') ? $post->cover_image : asset('storage/' . $post->cover_image)) : 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
                         </div>
                         <div class="p-stack-md flex flex-col justify-between flex-1">
                             <div>
                                 <div class="flex items-center gap-2 mb-2">
                                     <span class="bg-primary-fixed text-on-primary-fixed-variant px-2 py-0.5 rounded text-label-sm font-label-sm">{{ $post->category?->name ?? 'Web Development' }}</span>
-                                    <span class="text-outline text-label-sm font-label-sm">5 min read</span>
+                                    <span class="text-outline text-label-sm font-label-sm">{{ max(1, round(str_word_count(strip_tags($post->content)) / 200)) }} min read</span>
                                 </div>
-                                <h3 class="text-headline-md font-headline-md text-on-surface group-hover:text-primary transition-colors">
+                                <h3 class="text-headline-md font-headline-md text-on-surface group-hover:text-primary transition-colors line-clamp-2">
                                     <a href="{{ route('blog.show', $post->id) }}">{{ $post->title }}</a>
                                 </h3>
-                                <p class="text-body-md font-body-md text-on-surface-variant line-clamp-2 mt-2">{{ Str::limit(strip_tags($post->content), 150) }}</p>
+                                <p class="text-body-md font-body-md text-on-surface-variant line-clamp-2 mt-2">{{ Str::limit(strip_tags($post->content), 120) }}</p>
                             </div>
-                            <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center justify-between mt-4 border-t border-border-light pt-4">
                                 <div class="flex items-center gap-3">
-                                    <img alt="Author avatar" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvJbJyU0-zx7RUYmkBEu7k0RxVCyA3-jgOxVAZWSZW5iTwUktVZCwvb48KN0M_pZAeRqRvBhJL4EkgKsWoF06oBBYlsqKvWwXldCMXthPEiRcEWlGRG3RxzjzHWaz3WKX618qm8FQdg7XLWY8RPWWp_0uptR7OoaA0RZcMpDQigkVr2KJJNY-quXycu6-PQ7si2V24SMrQnolu1Mh0mrNAz0CRdK6CuyykacXaFs0nhm7DRNlkPHM2YcmaWRn4yKI26J_Z6KjqxoE"/>
+                                    <img alt="Author avatar" class="w-8 h-8 rounded-full" src="{{ $post->user?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->user?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                                     <div>
                                         <p class="text-label-md font-label-md font-bold text-on-surface">{{ $post->user?->name ?? 'Anonim' }}</p>
                                         <p class="text-label-sm font-label-sm text-outline">{{ $post->created_at->format('M d, Y') }}</p>
@@ -80,6 +80,30 @@
                     Create Post
                 </a>
             @endif
+            <!-- Blog Statistics Widget -->
+            <div class="grid grid-cols-2 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-surface-container-lowest border border-border-light shadow-sm">
+                    <p class="text-[10px] font-bold text-outline uppercase tracking-wider">Total Members</p>
+                    <p class="text-headline-sm font-headline-sm text-primary mt-1">{{ number_format($stats['total_members']) }}</p>
+                    <div class="h-1 w-8 bg-primary-fixed mx-auto mt-1 rounded-full"></div>
+                </div>
+                <div class="p-3 rounded-xl bg-surface-container-lowest border border-border-light shadow-sm">
+                    <p class="text-[10px] font-bold text-outline uppercase tracking-wider">Active Disc.</p>
+                    <p class="text-headline-sm font-headline-sm text-primary mt-1">{{ number_format($stats['active_discussions']) }}</p>
+                    <div class="h-1 w-8 bg-primary-fixed mx-auto mt-1 rounded-full"></div>
+                </div>
+                <div class="p-3 rounded-xl bg-surface-container-lowest border border-border-light shadow-sm">
+                    <p class="text-[10px] font-bold text-outline uppercase tracking-wider">Articles Pub.</p>
+                    <p class="text-headline-sm font-headline-sm text-primary mt-1">{{ number_format($stats['articles_published']) }}</p>
+                    <div class="h-1 w-8 bg-primary-fixed mx-auto mt-1 rounded-full"></div>
+                </div>
+                <div class="p-3 rounded-xl bg-surface-container-lowest border border-border-light shadow-sm">
+                    <p class="text-[10px] font-bold text-outline uppercase tracking-wider">Solution Rate</p>
+                    <p class="text-headline-sm font-headline-sm text-primary mt-1">{{ $stats['solution_rate'] }}%</p>
+                    <div class="h-1 w-8 bg-primary-fixed mx-auto mt-1 rounded-full"></div>
+                </div>
+            </div>
+
             <!-- New Topics -->
             <div class="bg-surface-container-low border border-border-light rounded-xl p-stack-md">
                 <div class="flex items-center justify-between mb-stack-md">
@@ -107,7 +131,7 @@
                 <div class="space-y-stack-md">
                     @forelse($recentActivities as $activity)
                         <div class="flex gap-3">
-                            <img alt="User" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4g1_3C_3dfx7Ws7jLqzZ5JcjElh2KEtQhhiLz_0T3Ykh2ZZHqdz4ZBfbGezFbI2WEsz7yHasazuAPlMNVy-qJCTmrxZYJQwh9AQFvZ7-I6v5ppO6-4vZRpIC-zDuKdg9T3ocrR1Xx9R3kLeiURj0_7J26YeIDRkD-yy3cKwmTwXyyVQJqRXBc7CzhMDRY3TfbL-G7UtzR2r5Nvf6YDjdZHjB4m7KHxNtsyGdEe7_cKQBK1vqrurpXgbwo31G2jI3zxM2JyjGpUWU"/>
+                            <img alt="User" class="w-6 h-6 rounded-full" src="{{ $activity->user?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($activity->user?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                             <div>
                                 <p class="text-label-md font-label-md text-on-surface-variant">
                                     <span class="font-bold text-on-surface">{{ $activity->user?->name ?? 'Anonim' }}</span> 
@@ -131,32 +155,6 @@
         </aside>
     </div>
 </main>
-<!-- Footer / Blog Statistics Widget -->
-<section class="bg-surface-container-low border-t border-border-light mt-stack-lg py-stack-lg">
-    <div class="max-w-container-max mx-auto px-margin-desktop">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-gutter text-center">
-            <div class="p-stack-md rounded-xl bg-surface-container-lowest border border-border-light">
-                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Total Members</p>
-                <p class="text-headline-xl font-headline-xl text-primary mt-1">{{ number_format($stats['total_members']) }}</p>
-                <div class="h-1 w-12 bg-primary-fixed mx-auto mt-2 rounded-full"></div>
-            </div>
-            <div class="p-stack-md rounded-xl bg-surface-container-lowest border border-border-light">
-                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Active Discussions</p>
-                <p class="text-headline-xl font-headline-xl text-primary mt-1">{{ number_format($stats['active_discussions']) }}</p>
-                <div class="h-1 w-12 bg-primary-fixed mx-auto mt-2 rounded-full"></div>
-            </div>
-            <div class="p-stack-md rounded-xl bg-surface-container-lowest border border-border-light">
-                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Articles Published</p>
-                <p class="text-headline-xl font-headline-xl text-primary mt-1">{{ number_format($stats['articles_published']) }}</p>
-                <div class="h-1 w-12 bg-primary-fixed mx-auto mt-2 rounded-full"></div>
-            </div>
-            <div class="p-stack-md rounded-xl bg-surface-container-lowest border border-border-light">
-                <p class="text-label-md font-label-md text-outline uppercase tracking-wider">Solution Rate</p>
-                <p class="text-headline-xl font-headline-xl text-primary mt-1">{{ $stats['solution_rate'] }}%</p>
-                <div class="h-1 w-12 bg-primary-fixed mx-auto mt-2 rounded-full"></div>
-            </div>
-        </div>
-    </div>
-</section>
+
 <x-footer class="bg-surface-container-low border-t-0 mt-0" />
 @endsection

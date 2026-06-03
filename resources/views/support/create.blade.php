@@ -17,7 +17,7 @@
 
 @section('content')
 <!-- TopNavBar -->
-<x-navigation active="support" class="w-full bg-background border-b border-outline-variant sticky top-0" />
+<x-navigation active="support" />
 <main class="flex-grow">
     <!-- Breadcrumbs -->
     <nav class="max-w-container-max mx-auto px-margin-desktop py-4 flex items-center gap-2 text-label-md font-label-md text-on-surface-variant">

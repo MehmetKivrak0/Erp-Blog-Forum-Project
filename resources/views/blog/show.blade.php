@@ -14,7 +14,7 @@
 
 @section('content')
 <!-- TopNavBar -->
-<x-navigation active="articles" class="bg-surface dark:bg-background-dark border-b border-outline-variant dark:border-border-dark sticky top-0" />
+<x-navigation active="articles" />
 <main class="flex-grow max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
     <!-- Hero Section -->
     <div class="relative w-full h-[32rem] rounded-xl overflow-hidden mb-stack-lg shadow-xl">
@@ -28,11 +28,11 @@
             <h1 class="font-headline-xl text-headline-xl text-white mb-4 leading-tight">{{ $post->title }}</h1>
             <div class="flex flex-wrap items-center justify-between gap-4 mt-6">
                 <div class="flex items-center gap-4 text-white/90">
-                    <a href="{{ route('profile') }}" class="block">
-                        <img alt="{{ $post->user?->name }}" class="w-10 h-10 rounded-full border-2 border-white/50" src="https://ui-avatars.com/api/?name={{ urlencode($post->user?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
+                    <a href="{{ route('profile', $post->user_id) }}" class="block">
+                        <img alt="{{ $post->user?->name }}" class="w-10 h-10 rounded-full border-2 border-white/50" src="{{ $post->user?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->user?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                     </a>
                     <div>
-                        <a href="{{ route('profile') }}" class="font-label-md text-label-md text-white hover:underline text-decoration-none">{{ $post->user?->name ?? 'Anonim' }}</a>
+                        <a href="{{ route('profile', $post->user_id) }}" class="font-label-md text-label-md text-white hover:underline text-decoration-none">{{ $post->user?->name ?? 'Anonim' }}</a>
                         <p class="text-label-sm opacity-80">Software Engineer • 5 min read • {{ $post->created_at->format('M d, Y') }}</p>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                 <form action="{{ route('blog.comment', $post->id) }}" method="POST" class="bg-surface-container p-stack-md rounded-xl border border-outline-variant mb-stack-lg">
                     @csrf
                     <div class="flex gap-4 mb-4">
-                        <img alt="Your Avatar" class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
+                        <img alt="Your Avatar" class="w-10 h-10 rounded-full" src="{{ auth()->user()?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode(auth()->user()?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                         <textarea name="comment" class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary focus:border-primary resize-none min-h-[100px] transition-all" placeholder="Share your thoughts..." required></textarea>
                     </div>
                     <div class="flex justify-end">
@@ -90,7 +90,7 @@
                     @forelse($post->comments as $comment)
                         <!-- Comment -->
                         <div class="flex gap-4">
-                            <img alt="Avatar" class="w-10 h-10 rounded-full flex-shrink-0" src="https://ui-avatars.com/api/?name={{ urlencode($comment->user?->name ?? 'Anonim') }}&color=7F9CF5&background=EBF4FF"/>
+                            <img alt="Avatar" class="w-10 h-10 rounded-full flex-shrink-0" src="{{ $comment->user?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($comment->user?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                             <div class="flex-grow">
                                 <div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant">
                                     <div class="flex justify-between items-center mb-1">

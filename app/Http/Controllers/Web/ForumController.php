@@ -29,12 +29,13 @@ class ForumController extends Controller
     public function index(Request $request)
     {
         $categorySlug = $request->query('category');
-        $topics = $this->forumService->getAllTopics($categorySlug);
+        $search = $request->query('search');
+        $topics = $this->forumService->getAllTopics($categorySlug, $search);
         $categories = \App\Models\Category::where('type', 'forum')->get();
         if ($categories->isEmpty()) {
             $categories = \App\Models\Category::all();
         }
-        return view('forum.index', compact('topics', 'categories'));
+        return view('forum.index', compact('topics', 'categories', 'search', 'categorySlug'));
     }
 
     public function show(ForumTopic $topic)
@@ -63,7 +64,7 @@ class ForumController extends Controller
         $dto = new CreateCommentDTO(
             userId: auth()->id() ?? 1,
             commentableId: $topic->id,
-            commentableType: ForumTopic::class,
+            commentableType: $topic->getMorphClass(),
             content: $request->reply
         );
 

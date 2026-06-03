@@ -23,7 +23,10 @@ Route::middleware('guest')->group(function () {
 // Auth (Korumalı)
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/profile', [\App\Http\Controllers\Web\ProfileController::class, 'show'])->name('profile');
+    
+    // Profile & User related routes
+    Route::get('/profile/{id?}', [\App\Http\Controllers\Web\ProfileController::class, 'show'])->name('profile');
+    Route::post('/profile/images', [\App\Http\Controllers\Web\ProfileController::class, 'updateImages'])->name('profile.images');
 
     // Blog (Korumalı)
     Route::get('/blog/create', [BlogController::class, 'create'])->name('blog.create');
@@ -76,6 +79,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/metrics', [AdminController::class, 'metrics'])->name('admin.metrics');
+        Route::get('/export-report', [AdminController::class, 'exportReport'])->name('admin.export.report');
         Route::post('/users/{id}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
         Route::post('/users/{id}/status', [AdminController::class, 'updateStatus'])->name('admin.users.status');
     });
@@ -95,11 +99,15 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
         Route::post('/topics/{id}/approve', [AdminController::class, 'approveTopic'])->name('admin.topics.approve');
         Route::post('/topics/{id}/reject', [AdminController::class, 'rejectTopic'])->name('admin.topics.reject');
 
-        // Ticket Management
-        Route::get('/tickets', [\App\Http\Controllers\Web\Admin\TicketController::class, 'index'])->name('admin.tickets.index');
-        Route::get('/tickets/{ticket}', [\App\Http\Controllers\Web\Admin\TicketController::class, 'show'])->name('admin.tickets.show');
-        Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Web\Admin\TicketController::class, 'reply'])->name('admin.tickets.reply');
-        Route::put('/tickets/{ticket}/status', [\App\Http\Controllers\Web\Admin\TicketController::class, 'updateStatus'])->name('admin.tickets.status');
+        // Removed Ticket Management from admin/moderator as per user request
+    });
+
+    // Sadece Developer
+    Route::middleware(['role:developer'])->prefix('developer')->name('developer.')->group(function () {
+        Route::get('/tickets', [\App\Http\Controllers\Web\Developer\TicketController::class, 'index'])->name('tickets.index');
+        Route::get('/tickets/{ticket}', [\App\Http\Controllers\Web\Developer\TicketController::class, 'show'])->name('tickets.show');
+        Route::post('/tickets/{ticket}/reply', [\App\Http\Controllers\Web\Developer\TicketController::class, 'reply'])->name('tickets.reply');
+        Route::put('/tickets/{ticket}/status', [\App\Http\Controllers\Web\Developer\TicketController::class, 'updateStatus'])->name('tickets.status');
     });
 
     // Admin ve Developer

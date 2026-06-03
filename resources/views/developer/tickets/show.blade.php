@@ -1,25 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Ticket #' . $ticket->id . ' | DevConnect')
+@section('title', 'Manage Ticket #' . $ticket->id . ' | Developer')
 @section('body-class', 'bg-background text-on-background font-body-md min-h-screen flex flex-col')
 
 @section('content')
-<x-navigation active="support" />
+<x-navigation />
 <main class="flex-grow max-w-container-max mx-auto w-full px-margin-desktop py-stack-lg grid grid-cols-1 lg:grid-cols-12 gap-gutter">
     
     <div class="lg:col-span-8 space-y-gutter">
+        <div class="mb-4">
+            <a href="{{ route('developer.tickets.index') }}" class="text-primary hover:underline font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-[18px]">arrow_back</span> Back to Tickets
+            </a>
+        </div>
+
         <!-- Ticket Header -->
         <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm space-y-4">
             <div class="flex justify-between items-start gap-4">
                 <h1 class="text-headline-md font-headline-md text-on-surface">{{ $ticket->subject }}</h1>
-                <span class="px-3 py-1 rounded-full text-label-md font-label-md bg-surface-container-low text-on-surface-variant border border-outline-variant whitespace-nowrap">
-                    {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
-                </span>
             </div>
-            <div class="flex items-center gap-4 text-label-md text-on-surface-variant">
-                <span>Created: {{ $ticket->created_at->format('M d, Y H:i') }}</span>
+            <div class="flex items-center gap-4 text-label-md text-on-surface-variant border-b border-outline-variant pb-4">
+                <span>By: <strong>{{ $ticket->user->name }}</strong> ({{ $ticket->user->email }})</span>
                 <span>•</span>
-                <span>Category: {{ ucfirst($ticket->category) }}</span>
+                <span>Created: {{ $ticket->created_at->format('M d, Y H:i') }}</span>
             </div>
             <div class="p-4 bg-surface-container-lowest rounded-lg border border-outline-variant text-body-md text-on-surface whitespace-pre-wrap">{{ $ticket->message }}</div>
             
@@ -38,7 +41,7 @@
         <h2 class="text-title-lg font-title-lg text-on-surface mt-stack-md">Discussion</h2>
         <div class="space-y-4">
             @foreach($ticket->replies as $reply)
-                <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm flex gap-4 {{ $reply->user->role === 'admin' || $reply->user->role === 'moderator' ? 'border-primary border-l-4' : '' }}">
+                <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm flex gap-4 {{ in_array($reply->user->role, ['admin', 'moderator', 'developer']) ? 'border-primary border-l-4 bg-primary-container/10' : '' }}">
                     <div class="flex-shrink-0">
                         @if($reply->user->profile_image)
                             <img src="{{ Storage::url($reply->user->profile_image) }}" alt="Avatar" class="w-10 h-10 rounded-full object-cover">
@@ -52,7 +55,7 @@
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-on-surface">{{ $reply->user->name }}</span>
-                                @if($reply->user->role === 'admin' || $reply->user->role === 'moderator')
+                                @if(in_array($reply->user->role, ['admin', 'moderator', 'developer']))
                                     <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-primary text-white">Staff</span>
                                 @endif
                             </div>
@@ -73,13 +76,12 @@
         @endif
 
         <!-- Reply Form -->
-        @if($ticket->status !== 'closed')
-        <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm mt-stack-md">
+        <div class="bg-white border border-outline-variant rounded-xl p-6 shadow-sm mt-stack-md border-primary">
             <h3 class="text-title-md font-title-md text-on-surface mb-4">Add a Reply</h3>
-            <form action="{{ route('support.reply', $ticket) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+            <form action="{{ route('developer.tickets.reply', $ticket) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
-                    <textarea name="message" rows="4" class="w-full p-3 rounded border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none text-on-surface" placeholder="Type your reply here..." required></textarea>
+                    <textarea name="message" rows="4" class="w-full p-3 rounded border border-outline-variant bg-surface-container-lowest focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none text-on-surface" placeholder="Type your response to the user..." required></textarea>
                 </div>
                 <div>
                     <label class="inline-flex items-center gap-2 cursor-pointer text-primary hover:underline text-label-md font-semibold">
@@ -94,36 +96,44 @@
                 </div>
             </form>
         </div>
-        @else
-        <div class="mt-stack-md p-4 bg-surface-container-low border border-outline-variant rounded-xl text-center text-on-surface-variant">
-            This ticket is closed. You cannot add new replies.
-        </div>
-        @endif
 
     </div>
 
     <!-- Sidebar Info -->
     <div class="lg:col-span-4 space-y-gutter">
         <div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl space-y-4">
-            <h3 class="text-title-md font-title-md text-on-surface border-b border-outline-variant pb-2">Ticket Details</h3>
-            <div class="flex justify-between items-center text-body-md">
-                <span class="text-on-surface-variant">Ticket ID</span>
-                <span class="font-bold text-on-surface">#{{ $ticket->id }}</span>
-            </div>
-            <div class="flex justify-between items-center text-body-md">
-                <span class="text-on-surface-variant">Priority</span>
-                <span class="font-bold text-on-surface">{{ ucfirst($ticket->priority) }}</span>
-            </div>
-            <div class="flex justify-between items-center text-body-md">
-                <span class="text-on-surface-variant">Status</span>
-                <span class="font-bold text-on-surface">{{ ucfirst(str_replace('_', ' ', $ticket->status)) }}</span>
-            </div>
-            <div class="flex justify-between items-center text-body-md">
-                <span class="text-on-surface-variant">Total Replies</span>
-                <span class="font-bold text-on-surface">{{ $ticket->replies->count() }}</span>
+            <h3 class="text-title-md font-title-md text-on-surface border-b border-outline-variant pb-2">Ticket Management</h3>
+            
+            <form action="{{ route('developer.tickets.status', $ticket) }}" method="POST" class="space-y-4 pt-2">
+                @csrf
+                @method('PUT')
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-label-md font-bold text-on-surface-variant">Update Status</label>
+                    <select name="status" class="w-full p-3 rounded border border-outline-variant bg-white focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all text-on-surface">
+                        <option value="open" {{ $ticket->status === 'open' ? 'selected' : '' }}>Open</option>
+                        <option value="in_progress" {{ $ticket->status === 'in_progress' ? 'selected' : '' }}>In Progress</option>
+                        <option value="resolved" {{ $ticket->status === 'resolved' ? 'selected' : '' }}>Resolved</option>
+                        <option value="closed" {{ $ticket->status === 'closed' ? 'selected' : '' }}>Closed</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="w-full bg-surface-container-high hover:bg-surface-hover text-on-surface py-2 rounded-lg font-bold transition-all border border-outline-variant">
+                    Update Status
+                </button>
+            </form>
+
+            <div class="pt-4 border-t border-outline-variant space-y-2 text-body-md">
+                <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Category:</span>
+                    <span class="font-bold text-on-surface">{{ ucfirst($ticket->category) }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-on-surface-variant">Priority:</span>
+                    <span class="font-bold text-on-surface">{{ ucfirst($ticket->priority) }}</span>
+                </div>
             </div>
         </div>
     </div>
 </main>
-<x-footer class="w-full py-stack-lg mt-auto bg-surface-container-low border-t border-outline-variant" />
 @endsection

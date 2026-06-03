@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\User;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
@@ -71,10 +72,24 @@ class MessageController extends Controller
             abort(403);
         }
 
-        $conversation->messages()->create([
+        $message = $conversation->messages()->create([
             'sender_id' => $user->id,
             'body' => $request->body,
         ]);
+
+        broadcast(new MessageSent($message, $user))->toOthers();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => [
+                    'id' => $message->id,
+                    'body' => $message->body,
+                    'created_at' => $message->created_at->format('H:i'),
+                    'read_at' => null,
+                ]
+            ]);
+        }
 
         return back();
     }

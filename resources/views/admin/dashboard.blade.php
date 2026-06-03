@@ -179,7 +179,7 @@
                     <div class="relative">
                         <button id="timeframe-btn" class="px-4 py-2 bg-surface dark:bg-slate-900 border border-outline dark:border-slate-700 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-surface-hover dark:hover:bg-slate-800 text-on-background dark:text-white">
                             <span class="material-symbols-outlined text-[18px]">calendar_today</span>
-                            <span id="timeframe-text">Last 30 Days</span>
+                            <span id="timeframe-text">Last {{ $days }} Days</span>
                         </button>
                         <!-- Dropdown Menu -->
                         <div id="timeframe-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-xl shadow-xl z-50 p-2 text-left">
@@ -262,7 +262,7 @@
                     <div class="flex w-full sm:w-auto gap-2">
                         <div class="relative flex-1">
                             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
-                            <input id="user-search" class="pl-10 pr-4 py-2 border border-outline-variant dark:border-slate-700 rounded-lg text-body-md w-full sm:w-64 bg-transparent text-on-background dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Filter by username or email..." type="text"/>
+                            <input id="user-search" value="{{ request('search') }}" class="pl-10 pr-4 py-2 border border-outline-variant dark:border-slate-700 rounded-lg text-body-md w-full sm:w-64 bg-transparent text-on-background dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Press Enter to search..." type="text"/>
                         </div>
                         <div class="relative">
                             <button id="filter-btn" class="p-2 border border-outline-variant dark:border-slate-700 rounded-lg hover:bg-surface-container dark:hover:bg-slate-800 text-on-surface-variant dark:text-outline">
@@ -271,10 +271,11 @@
                             <!-- Filter dropdown -->
                             <div id="filter-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-surface dark:bg-slate-900 border border-outline-variant dark:border-slate-800 rounded-xl shadow-xl z-50 p-2 text-left">
                                 <p class="text-label-sm text-outline px-3 py-1 uppercase font-semibold text-[10px]">Filter by Role</p>
-                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium" data-role="all">All Roles</button>
-                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium" data-role="Premium Member">Premium Member</button>
-                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium" data-role="Moderator">Moderator</button>
-                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium" data-role="Developer">Developer</button>
+                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium {{ request('role') == 'all' ? 'bg-surface-hover dark:bg-slate-800' : '' }}" data-role="all">All Roles</button>
+                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium {{ request('role') == 'user' ? 'bg-surface-hover dark:bg-slate-800' : '' }}" data-role="Premium Member">Premium Member</button>
+                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium {{ request('role') == 'moderator' ? 'bg-surface-hover dark:bg-slate-800' : '' }}" data-role="Moderator">Moderator</button>
+                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium {{ request('role') == 'developer' ? 'bg-surface-hover dark:bg-slate-800' : '' }}" data-role="Developer">Developer</button>
+                                <button class="w-full text-left px-3 py-2 text-label-md rounded-lg hover:bg-surface-hover dark:hover:bg-surface-container-high dark:text-white transition-colors font-medium {{ request('role') == 'admin' ? 'bg-surface-hover dark:bg-slate-800' : '' }}" data-role="Admin">Admin</button>
                             </div>
                         </div>
                     </div>
@@ -357,15 +358,10 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="p-4 border-t border-border-light dark:border-border-dark flex justify-between items-center bg-surface-container-lowest dark:bg-slate-900/20">
-                    <p class="text-label-sm text-on-surface-variant dark:text-outline">Showing <span id="showing-count">{{ count($users) }}</span> of {{ $totalUsers }} users</p>
-                    <div class="flex gap-2">
-                        <button onclick="showToast('You are on the first page')" class="p-2 border border-outline-variant dark:border-slate-700 rounded-lg disabled:opacity-50" disabled="">
-                            <span class="material-symbols-outlined">chevron_left</span>
-                        </button>
-                        <button onclick="showToast('Loading next page...')" class="p-2 border border-outline-variant dark:border-slate-700 rounded-lg hover:bg-surface-container dark:hover:bg-slate-800">
-                            <span class="material-symbols-outlined">chevron_right</span>
-                        </button>
+                <div class="p-4 border-t border-border-light dark:border-border-dark flex flex-col md:flex-row justify-between items-center gap-4 bg-surface-container-lowest dark:bg-slate-900/20">
+                    <p class="text-label-sm text-on-surface-variant dark:text-outline">Showing {{ $users->firstItem() ?? 0 }} to {{ $users->lastItem() ?? 0 }} of {{ $users->total() }} users (Total Platform Users: {{ $totalPlatformUsers }})</p>
+                    <div class="flex gap-2 text-sm overflow-x-auto w-full md:w-auto">
+                        {{ $users->links() }}
                     </div>
                 </div>
             </div>
@@ -504,26 +500,20 @@
 
     // User Table Live Search Filter
     const userSearch = document.getElementById('user-search');
-    const tableBody = document.getElementById('user-table-body');
-    const rows = tableBody.querySelectorAll('tr');
-    const showingCount = document.getElementById('showing-count');
-
-    function filterTable() {
-        const query = userSearch.value.toLowerCase().trim();
-        let visibleCount = 0;
-        rows.forEach(row => {
-            const username = row.querySelector('.font-label-md').textContent.toLowerCase();
-            const email = row.querySelector('.text-\\[12px\\]').textContent.toLowerCase();
-            if (username.includes(query) || email.includes(query)) {
-                row.classList.remove('hidden');
-                visibleCount++;
+    userSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            const query = userSearch.value.trim();
+            const url = new URL(window.location.href);
+            if (query) {
+                url.searchParams.set('search', query);
             } else {
-                row.classList.add('hidden');
+                url.searchParams.delete('search');
             }
-        });
-        showingCount.textContent = visibleCount;
-    }
-    userSearch.addEventListener('input', filterTable);
+            // Reset to page 1 on search
+            url.searchParams.delete('page');
+            window.location.href = url.href;
+        }
+    });
 
     // Role Dropdown Filtering
     const filterBtn = document.getElementById('filter-btn');
@@ -542,18 +532,17 @@
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const role = btn.getAttribute('data-role');
-            let visibleCount = 0;
-            rows.forEach(row => {
-                const rowRole = row.querySelector('td:nth-child(3) span').textContent.trim();
-                if (role === 'all' || rowRole === role) {
-                    row.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    row.classList.add('hidden');
-                }
-            });
-            showingCount.textContent = visibleCount;
-            showToast(`Filtered by role: ${role}`);
+            
+            let roleVal = 'all';
+            if (role === 'Premium Member') roleVal = 'user';
+            else if (role === 'Moderator') roleVal = 'moderator';
+            else if (role === 'Developer') roleVal = 'developer';
+            else if (role === 'Admin') roleVal = 'admin';
+
+            const url = new URL(window.location.href);
+            url.searchParams.set('role', roleVal);
+            url.searchParams.delete('page');
+            window.location.href = url.href;
         });
     });
 
@@ -574,49 +563,13 @@
     timeframeDropdown.querySelectorAll('[data-time]').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const days = btn.getAttribute('data-time');
-            timeframeText.textContent = `Last ${days} Days`;
-            
-            const totalUsersEl = document.getElementById('stat-total-users');
-            const pendingReportsEl = document.getElementById('stat-pending-reports');
-            const activeDiscEl = document.getElementById('stat-active-disc');
-            const solRateEl = document.getElementById('stat-sol-rate');
-            
-            fetch(`/admin/metrics?days=${days}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        animateValue(totalUsersEl, parseInt(totalUsersEl.textContent.replace(/,/g, '') || '0'), data.totalUsers, 800);
-                        animateValue(pendingReportsEl, parseInt(pendingReportsEl.textContent.replace(/,/g, '') || '0'), data.pendingReports, 800);
-                        animateValue(activeDiscEl, parseInt(activeDiscEl.textContent.replace(/,/g, '') || '0'), data.activeDiscussions, 800);
-                        solRateEl.textContent = data.solutionRate + '%';
-                        showToast(`Metric view adjusted to: Last ${days} days`);
-                    } else {
-                        showToast('Failed to fetch metrics', 'error');
-                    }
-                })
-                .catch(err => {
-                    console.error(err);
-                    showToast('Failed to fetch metrics', 'error');
-                });
+            const url = new URL(window.location.href);
+            url.searchParams.set('days', days);
+            window.location.href = url.href;
         });
     });
 
-    function animateValue(obj, start, end, duration) {
-        if (start === end) return;
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            const val = Math.floor(progress * (end - start) + start);
-            obj.textContent = val.toLocaleString();
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            }
-        };
-        window.requestAnimationFrame(step);
-    }
-
-    // Export report spinner simulation
+    // Export report spinner simulation and actual redirect
     const exportBtn = document.getElementById('export-btn');
     exportBtn.addEventListener('click', () => {
         const originalContent = exportBtn.innerHTML;
@@ -631,8 +584,14 @@
         setTimeout(() => {
             exportBtn.innerHTML = originalContent;
             exportBtn.disabled = false;
-            showToast('Report generated and exported successfully!', 'success');
-        }, 1500);
+            
+            const url = new URL("{{ route('admin.export.report') }}", window.location.origin);
+            const currentParams = new URLSearchParams(window.location.search);
+            currentParams.forEach((value, key) => url.searchParams.append(key, value));
+            window.location.href = url.href;
+
+            showToast('Report generation started!', 'success');
+        }, 1000);
     });
 
     // Alert & notification list toggling

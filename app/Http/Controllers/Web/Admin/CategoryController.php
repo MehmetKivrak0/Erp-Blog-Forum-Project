@@ -12,10 +12,19 @@ class CategoryController extends Controller
     /**
      * Display a listing of the categories.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount(['posts', 'forumTopics'])->orderBy('name')->get();
-        return view('admin.categories', compact('categories'));
+        $type = $request->query('type', 'blog');
+        $blogCategories = null;
+        $forumCategories = null;
+
+        if ($type === 'blog') {
+            $blogCategories = Category::where('type', 'blog')->withCount('posts')->orderBy('name')->paginate(4, ['*'], 'blog_page');
+        } else {
+            $forumCategories = Category::where('type', 'forum')->withCount('forumTopics')->orderBy('name')->paginate(4, ['*'], 'forum_page');
+        }
+
+        return view('admin.categories', compact('blogCategories', 'forumCategories', 'type'));
     }
 
     /**

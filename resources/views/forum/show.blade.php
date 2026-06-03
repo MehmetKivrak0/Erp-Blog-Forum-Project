@@ -23,7 +23,7 @@
 
 @section('content')
 <!-- Header Navigation -->
-<x-navigation active="discussions" class="bg-background border-b border-outline-variant fixed top-0 w-full" />
+<x-navigation active="discussions" />
 <main class="flex-grow mt-16 pt-stack-lg pb-24 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
     <!-- Thread Header -->
     <div class="mb-stack-lg relative overflow-hidden rounded-xl border border-outline-variant bg-white p-8">
@@ -36,11 +36,11 @@
                 {{ $topic->title }}
             </h1>
             <div class="flex items-center gap-3 text-on-surface-variant">
-                <a href="{{ route('profile') }}">
+                <a href="{{ route('profile', $topic->user_id) }}">
                     <img alt="{{ $topic->user?->name ?? 'User' }} profile" class="w-10 h-10 rounded-full border border-outline-variant object-cover" src="https://lh3.googleusercontent.com/aida/ADBb0ugBP2tSik5MFhuWgvgVUCGkxdJWCNaj9ffO0pT34K5MCS9Si4Yxj7oCLUeX1fbmXK9YdXQJ70Dys4iYvLdpR3LW2iHdeHEv_Rw8G1vOwHAkIJKwTyzha-Ebfnwh9zpuM_W7gFw1vmZ6zO-axiFlDkeTqwuD1guH6x00xri9J7A2AH7_WI9_XPABJu1qdofrhMacQkQFjaVz3PpgRDUv6F3yxJ6EDXLf8pENVDM94pwWelJtV_y8ggTZHg"/>
                 </a>
                 <div>
-                    <a href="{{ route('profile') }}" class="font-label-md text-label-md text-on-surface hover:underline text-decoration-none">{{ $topic->user?->name ?? 'Anonim' }}</a>
+                    <a href="{{ route('profile', $topic->user_id) }}" class="font-label-md text-label-md text-on-surface hover:underline text-decoration-none">{{ $topic->user?->name ?? 'Anonim' }}</a>
                     <p class="font-label-sm text-label-sm">Posted {{ $topic->created_at->diffForHumans() }}</p>
                 </div>
             </div>

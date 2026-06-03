@@ -4,7 +4,7 @@
 @section('body-class', 'bg-background text-on-background font-body-md min-h-screen flex flex-col')
 
 @section('content')
-<x-navigation class="w-full bg-background border-b border-outline-variant sticky top-0" />
+<x-navigation />
 <main class="flex-grow max-w-container-max mx-auto w-full px-margin-desktop py-stack-lg">
     <div class="flex justify-between items-center mb-stack-md">
         <div>

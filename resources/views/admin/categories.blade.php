@@ -84,105 +84,199 @@
             </div>
         @endif
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
-            <!-- Categories List -->
-            <div class="md:col-span-2 bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
-                <div class="p-4 border-b border-outline-variant bg-surface-container-lowest">
-                    <h2 class="font-title-md text-title-md text-on-surface">Existing Categories</h2>
-                </div>
-                <div class="p-0">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-surface-container-low text-on-surface-variant font-label-md">
-                                <th class="p-3 border-b border-outline-variant font-medium">Name</th>
-                                <th class="p-3 border-b border-outline-variant font-medium">Type</th>
-                                <th class="p-3 border-b border-outline-variant font-medium">Posts/Topics</th>
-                                <th class="p-3 border-b border-outline-variant font-medium text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($categories as $category)
-                            <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
-                                <td class="p-3 font-body-md text-on-surface">{{ $category->name }}</td>
-                                <td class="p-3 font-body-sm">
-                                    @if($category->type === 'blog')
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">Blog</span>
-                                    @else
-                                        <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">Forum</span>
-                                    @endif
-                                </td>
-                                <td class="p-3 font-body-sm text-on-surface-variant">
-                                    {{ $category->posts_count }} Posts / {{ $category->forum_topics_count }} Topics
-                                </td>
-                                <td class="p-3 text-right">
-                                    <button type="button" onclick="editCategory({{ $category->id }}, '{{ $category->name }}', '{{ $category->type }}')" class="text-secondary hover:text-primary mr-2" title="Edit">
-                                        <span class="material-symbols-outlined text-[20px]">edit</span>
-                                    </button>
-                                    <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this category?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-error hover:text-error/80" title="Delete">
-                                            <span class="material-symbols-outlined text-[20px]">delete</span>
+        <!-- Tabs -->
+        <div class="flex gap-stack-md border-b border-outline-variant mb-stack-lg">
+            <a href="{{ route('admin.categories.index', ['type' => 'blog']) }}" class="pb-2 px-1 font-title-md text-decoration-none {{ $type === 'blog' ? 'border-b-2 border-primary text-primary font-bold' : 'text-on-surface-variant hover:text-on-surface font-medium' }}">
+                Blog Categories
+            </a>
+            <a href="{{ route('admin.categories.index', ['type' => 'forum']) }}" class="pb-2 px-1 font-title-md text-decoration-none {{ $type === 'forum' ? 'border-b-2 border-primary text-primary font-bold' : 'text-on-surface-variant hover:text-on-surface font-medium' }}">
+                Forum Categories
+            </a>
+        </div>
+
+        @if($type === 'blog')
+        <!-- Blog Categories Section -->
+        <div>
+            <h2 class="text-headline-md font-headline-md text-on-surface mb-stack-md flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">article</span>
+                Blog Categories
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
+                <!-- Blog Categories List -->
+                <div class="md:col-span-2 bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-outline-variant bg-surface-container-lowest">
+                        <h2 class="font-title-md text-title-md text-on-surface">Existing Blog Categories</h2>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low text-on-surface-variant font-label-md">
+                                    <th class="p-3 border-b border-outline-variant font-medium">Name</th>
+                                    <th class="p-3 border-b border-outline-variant font-medium">Posts</th>
+                                    <th class="p-3 border-b border-outline-variant font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($blogCategories as $category)
+                                <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                    <td class="p-3 font-body-md text-on-surface">{{ $category->name }}</td>
+                                    <td class="p-3 font-body-sm text-on-surface-variant">
+                                        {{ $category->posts_count }} Posts
+                                    </td>
+                                    <td class="p-3 text-right">
+                                        <button type="button" onclick="editCategory({{ $category->id }}, '{{ $category->name }}', 'blog')" class="text-secondary hover:text-primary mr-2" title="Edit">
+                                            <span class="material-symbols-outlined text-[20px]">edit</span>
                                         </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="p-6 text-center text-on-surface-variant font-body-md">
-                                    No categories found.
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-error hover:text-error/80" title="Delete">
+                                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="p-6 text-center text-on-surface-variant font-body-md">
+                                        No blog categories found.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if($blogCategories->hasPages())
+                    <div class="p-4 border-t border-outline-variant bg-surface-container-lowest">
+                        {{ $blogCategories->withQueryString()->links() }}
+                    </div>
+                    @endif
                 </div>
-            </div>
 
-            <!-- Create/Edit Form -->
-            <div class="bg-surface border border-outline-variant rounded-xl shadow-sm self-start">
-                <div class="p-4 border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
-                    <h2 id="form-title" class="font-title-md text-title-md text-on-surface">Add New Category</h2>
-                    <button type="button" id="cancel-edit-btn" onclick="resetForm()" class="hidden text-xs text-error hover:underline">Cancel Edit</button>
-                </div>
-                <div class="p-4">
-                    <form id="category-form" action="{{ route('admin.categories.store') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <input type="hidden" name="_method" id="form-method" value="POST">
-                        
-                        <div>
-                            <label class="block font-label-md text-on-surface mb-1">Category Name</label>
-                            <input type="text" name="name" id="category-name" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-2 focus:ring-1 focus:ring-primary focus:border-primary text-body-md" placeholder="e.g. Technology">
-                        </div>
-                        
-                        <div>
-                            <label class="block font-label-md text-on-surface mb-1">Type</label>
-                            <select name="type" id="category-type" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-2 focus:ring-1 focus:ring-primary focus:border-primary text-body-md">
-                                <option value="blog">Blog</option>
-                                <option value="forum">Forum</option>
-                            </select>
-                        </div>
+                <!-- Blog Create/Edit Form -->
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm self-start">
+                    <div class="p-4 border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+                        <h2 id="form-title-blog" class="font-title-md text-title-md text-on-surface">Add Blog Category</h2>
+                        <button type="button" id="cancel-edit-btn-blog" onclick="resetForm('blog')" class="hidden text-xs text-error hover:underline">Cancel Edit</button>
+                    </div>
+                    <div class="p-4">
+                        <form id="category-form-blog" action="{{ route('admin.categories.store') }}" method="POST" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="_method" id="form-method-blog" value="POST">
+                            <input type="hidden" name="type" value="blog">
+                            
+                            <div>
+                                <label class="block font-label-md text-on-surface mb-1">Category Name</label>
+                                <input type="text" name="name" id="category-name-blog" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-2 focus:ring-1 focus:ring-primary focus:border-primary text-body-md" placeholder="e.g. Technology">
+                            </div>
 
-                        <button type="submit" id="submit-btn" class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity">
-                            Add Category
-                        </button>
-                    </form>
+                            <button type="submit" id="submit-btn-blog" class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity">
+                                Add Category
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
+        @endif
+
+        @if($type === 'forum')
+        <!-- Forum Categories Section -->
+        <div>
+            <h2 class="text-headline-md font-headline-md text-on-surface mb-stack-md flex items-center gap-2">
+                <span class="material-symbols-outlined text-purple-600">forum</span>
+                Forum Categories
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-stack-lg">
+                <!-- Forum Categories List -->
+                <div class="md:col-span-2 bg-surface border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-outline-variant bg-surface-container-lowest">
+                        <h2 class="font-title-md text-title-md text-on-surface">Existing Forum Categories</h2>
+                    </div>
+                    <div class="p-0">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-surface-container-low text-on-surface-variant font-label-md">
+                                    <th class="p-3 border-b border-outline-variant font-medium">Name</th>
+                                    <th class="p-3 border-b border-outline-variant font-medium">Topics</th>
+                                    <th class="p-3 border-b border-outline-variant font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($forumCategories as $category)
+                                <tr class="border-b border-outline-variant hover:bg-surface-container-lowest transition-colors">
+                                    <td class="p-3 font-body-md text-on-surface">{{ $category->name }}</td>
+                                    <td class="p-3 font-body-sm text-on-surface-variant">
+                                        {{ $category->forum_topics_count }} Topics
+                                    </td>
+                                    <td class="p-3 text-right">
+                                        <button type="button" onclick="editCategory({{ $category->id }}, '{{ $category->name }}', 'forum')" class="text-secondary hover:text-primary mr-2" title="Edit">
+                                            <span class="material-symbols-outlined text-[20px]">edit</span>
+                                        </button>
+                                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this category?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-error hover:text-error/80" title="Delete">
+                                                <span class="material-symbols-outlined text-[20px]">delete</span>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="p-6 text-center text-on-surface-variant font-body-md">
+                                        No forum categories found.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    @if($forumCategories->hasPages())
+                    <div class="p-4 border-t border-outline-variant bg-surface-container-lowest">
+                        {{ $forumCategories->withQueryString()->links() }}
+                    </div>
+                    @endif
+                </div>
+
+                <!-- Forum Create/Edit Form -->
+                <div class="bg-surface border border-outline-variant rounded-xl shadow-sm self-start">
+                    <div class="p-4 border-b border-outline-variant bg-surface-container-lowest flex justify-between items-center">
+                        <h2 id="form-title-forum" class="font-title-md text-title-md text-on-surface">Add Forum Category</h2>
+                        <button type="button" id="cancel-edit-btn-forum" onclick="resetForm('forum')" class="hidden text-xs text-error hover:underline">Cancel Edit</button>
+                    </div>
+                    <div class="p-4">
+                        <form id="category-form-forum" action="{{ route('admin.categories.store') }}" method="POST" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="_method" id="form-method-forum" value="POST">
+                            <input type="hidden" name="type" value="forum">
+                            
+                            <div>
+                                <label class="block font-label-md text-on-surface mb-1">Category Name</label>
+                                <input type="text" name="name" id="category-name-forum" required class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-2 focus:ring-1 focus:ring-primary focus:border-primary text-body-md" placeholder="e.g. Help">
+                            </div>
+
+                            <button type="submit" id="submit-btn-forum" class="w-full bg-primary text-on-primary py-2 rounded-lg font-label-md hover:opacity-90 transition-opacity">
+                                Add Category
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
     </section>
 </main>
 
 <script>
     function editCategory(id, name, type) {
-        const form = document.getElementById('category-form');
-        const formTitle = document.getElementById('form-title');
-        const submitBtn = document.getElementById('submit-btn');
-        const methodInput = document.getElementById('form-method');
-        const cancelBtn = document.getElementById('cancel-edit-btn');
-        
-        const nameInput = document.getElementById('category-name');
-        const typeInput = document.getElementById('category-type');
+        const form = document.getElementById(`category-form-${type}`);
+        const formTitle = document.getElementById(`form-title-${type}`);
+        const submitBtn = document.getElementById(`submit-btn-${type}`);
+        const methodInput = document.getElementById(`form-method-${type}`);
+        const cancelBtn = document.getElementById(`cancel-edit-btn-${type}`);
+        const nameInput = document.getElementById(`category-name-${type}`);
 
         // Update form action to update route
         form.action = `/admin/categories/${id}`;
@@ -192,7 +286,6 @@
 
         // Fill inputs
         nameInput.value = name;
-        typeInput.value = type;
 
         // Update UI
         formTitle.innerText = 'Edit Category';
@@ -200,15 +293,13 @@
         cancelBtn.classList.remove('hidden');
     }
 
-    function resetForm() {
-        const form = document.getElementById('category-form');
-        const formTitle = document.getElementById('form-title');
-        const submitBtn = document.getElementById('submit-btn');
-        const methodInput = document.getElementById('form-method');
-        const cancelBtn = document.getElementById('cancel-edit-btn');
-        
-        const nameInput = document.getElementById('category-name');
-        const typeInput = document.getElementById('category-type');
+    function resetForm(type) {
+        const form = document.getElementById(`category-form-${type}`);
+        const formTitle = document.getElementById(`form-title-${type}`);
+        const submitBtn = document.getElementById(`submit-btn-${type}`);
+        const methodInput = document.getElementById(`form-method-${type}`);
+        const cancelBtn = document.getElementById(`cancel-edit-btn-${type}`);
+        const nameInput = document.getElementById(`category-name-${type}`);
 
         // Reset to store route
         form.action = `{{ route('admin.categories.store') }}`;
@@ -218,10 +309,9 @@
 
         // Clear inputs
         nameInput.value = '';
-        typeInput.value = 'blog';
 
         // Update UI
-        formTitle.innerText = 'Add New Category';
+        formTitle.innerText = type === 'blog' ? 'Add Blog Category' : 'Add Forum Category';
         submitBtn.innerText = 'Add Category';
         cancelBtn.classList.add('hidden');
     }

@@ -21,5 +21,5 @@ interface ForumRepositoryInterface extends EloquentRepositoryInterface
     /**
      * Tüm forum konularını getirir.
      */
-    public function getAllTopics(?string $categorySlug = null): Collection;
+    public function getAllTopics(?string $categorySlug = null, ?string $search = null): Collection;
 }

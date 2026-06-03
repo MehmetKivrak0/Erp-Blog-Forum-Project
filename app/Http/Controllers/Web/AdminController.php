@@ -14,25 +14,53 @@ use App\Core\Enums\PostStatus;
 
 class AdminController extends Controller
 {
-    /**
-     * Display the Admin Dashboard.
-     */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        $users = User::all();
-        $totalUsers = User::count();
-        $pendingReports = Post::where('status', PostStatus::PENDING->value)->count();
-        $activeDiscussions = ForumTopic::count();
+        $days = intval($request->query('days', 30));
+        $search = $request->query('search', '');
+        $role = $request->query('role', 'all');
+
+        $pendingReports = Post::where('status', PostStatus::PENDING->value)
+            ->where('created_at', '>=', now()->subDays($days))->count();
+        $activeDiscussions = ForumTopic::where('created_at', '>=', now()->subDays($days))->count();
         
-        $solvedTopics = ForumTopic::whereNotNull('solution_comment_id')->count();
+        $solvedTopics = ForumTopic::whereNotNull('solution_comment_id')
+            ->where('created_at', '>=', now()->subDays($days))->count();
         $solutionRate = $activeDiscussions > 0 ? round(($solvedTopics / $activeDiscussions) * 100) : 0;
+
+        $totalPlatformUsers = User::count();
+
+        // User Directory List Logic
+        $query = User::query();
+        
+        if ($days) {
+            $query->where('created_at', '>=', now()->subDays($days));
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+
+        if ($role !== 'all') {
+            $query->where('role', $role);
+        }
+
+        $totalUsers = $query->count();
+        $users = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.dashboard', compact(
             'users',
             'totalUsers',
+            'totalPlatformUsers',
             'pendingReports',
             'activeDiscussions',
-            'solutionRate'
+            'solutionRate',
+            'days',
+            'search',
+            'role'
         ));
     }
 
@@ -63,6 +91,75 @@ class AdminController extends Controller
             'activeDiscussions' => $activeDiscussions,
             'solutionRate' => $solutionRate,
         ]);
+    }
+
+    /**
+     * Export admin report to CSV
+     */
+    public function exportReport(Request $request)
+    {
+        $days = intval($request->query('days', 30));
+        $search = $request->query('search', '');
+        $role = $request->query('role', 'all');
+
+        $query = User::query();
+        if ($days) {
+            $query->where('created_at', '>=', now()->subDays($days));
+        }
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
+        }
+        if ($role !== 'all') {
+            $query->where('role', $role);
+        }
+
+        $users = $query->get();
+        $totalUsers = $users->count();
+        $pendingReports = Post::where('status', PostStatus::PENDING->value)
+            ->where('created_at', '>=', now()->subDays($days))
+            ->count();
+        
+        $csvFileName = 'admin_report_' . now()->format('Ymd_His') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv; charset=UTF-8",
+            "Content-Disposition" => "attachment; filename=$csvFileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function() use($users, $totalUsers, $pendingReports, $days) {
+            $file = fopen('php://output', 'w');
+            // Add BOM for Excel UTF-8 support
+            fputs($file, $bom =(chr(0xEF) . chr(0xBB) . chr(0xBF)));
+
+            fputcsv($file, ['DevNexus Yönetim Raporu']);
+            fputcsv($file, ['Zaman Dilimi', "Son $days Gün"]);
+            fputcsv($file, ['Kullanıcı Sayısı', $totalUsers]);
+            fputcsv($file, ['Bekleyen Raporlar', $pendingReports]);
+            fputcsv($file, []);
+            
+            fputcsv($file, ['ID', 'İsim', 'E-posta', 'Rol', 'Durum', 'Kayıt Tarihi']);
+
+            foreach ($users as $user) {
+                $userRole = $user->role->value ?? $user->role;
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $userRole,
+                    $user->status,
+                    $user->created_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     /**

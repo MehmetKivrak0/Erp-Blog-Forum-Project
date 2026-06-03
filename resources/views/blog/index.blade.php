@@ -5,7 +5,7 @@
 
 @section('content')
 <!-- TopNavBar -->
-<x-navigation active="articles" class="bg-surface-container-lowest border-b border-border-light" />
+<x-navigation active="articles" />
 
 <header class="bg-surface-container-low border-b border-border-light py-12">
     <div class="max-w-container-max mx-auto px-margin-desktop text-center md:text-left">
@@ -34,7 +34,7 @@
         @forelse($posts as $post)
             <article class="group bg-surface-container-lowest border border-border-light rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300">
                 <div class="h-48 overflow-hidden relative">
-                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $post->title }}" src="{{ $post->cover_image ?? 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
+                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $post->title }}" src="{{ $post->cover_image ? (Str::startsWith($post->cover_image, 'http') ? $post->cover_image : asset('storage/' . $post->cover_image)) : 'https://lh3.googleusercontent.com/aida-public/AB6AXuAdA8VWix3PUFWD42jCNKrnd6Fm7xOddh4qbiygSrLeJkL1empJw8g_bIXbtYNxIaYawkVyyZDf3yJV4sVUx51kJRErlV0yqvGliG7sA1wkS9TdBXI5jGIIQtEZRJZ7DzQcsXU3OizgTeEs7Y2ffT3TvC9uUQxlRSJeuZDtP3cj6YxysWpi1yfT6V7EH5K0VqltlmSvFtR_1-Xc1ost1I-tn9f-9XZex_lFzBmkt-LnEX9UAcUi7edIfPvQKQABik_4ob9cTFYAatQ' }}"/>
                 </div>
                 <div class="p-stack-md flex flex-col justify-between flex-grow">
                     <div>
@@ -49,7 +49,7 @@
                     </div>
                     <div class="flex items-center justify-between mt-4 border-t border-border-light pt-4">
                         <div class="flex items-center gap-3">
-                            <img alt="Author avatar" class="w-8 h-8 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvJbJyU0-zx7RUYmkBEu7k0RxVCyA3-jgOxVAZWSZW5iTwUktVZCwvb48KN0M_pZAeRqRvBhJL4EkgKsWoF06oBBYlsqKvWwXldCMXthPEiRcEWlGRG3RxzjzHWaz3WKX618qm8FQdg7XLWY8RPWWp_0uptR7OoaA0RZcMpDQigkVr2KJJNY-quXycu6-PQ7si2V24SMrQnolu1Mh0mrNAz0CRdK6CuyykacXaFs0nhm7DRNlkPHM2YcmaWRn4yKI26J_Z6KjqxoE"/>
+                            <img alt="Author avatar" class="w-8 h-8 rounded-full" src="{{ $post->user?->avatar ?? 'https://ui-avatars.com/api/?name='.urlencode($post->user?->name ?? 'Anonim').'&color=7F9CF5&background=EBF4FF' }}"/>
                             <div>
                                 <p class="text-label-md font-label-md font-bold text-on-surface">{{ $post->user?->name ?? 'Anonim' }}</p>
                                 <p class="text-label-sm font-label-sm text-outline">{{ $post->created_at->format('M d, Y') }}</p>

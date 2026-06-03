@@ -1,18 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'My Support Tickets | DevConnect')
+@section('title', 'Developer - Support Tickets | DevConnect')
 @section('body-class', 'bg-background text-on-background font-body-md min-h-screen flex flex-col')
 
 @section('content')
-<!-- TopNavBar -->
-<x-navigation active="support" />
+<x-navigation />
 <main class="flex-grow max-w-container-max mx-auto w-full px-margin-desktop py-stack-lg">
     <div class="flex justify-between items-center mb-stack-md">
-        <h1 class="text-headline-lg font-headline-lg text-on-surface">My Support Tickets</h1>
-        <a href="{{ route('support.create') }}" class="bg-primary text-white py-2 px-6 rounded-lg font-bold hover:bg-opacity-90 transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined">add</span>
-            New Ticket
-        </a>
+        <div>
+            <h1 class="text-headline-lg font-headline-lg text-on-surface">Support Tickets (Developer)</h1>
+            <p class="text-body-md text-on-surface-variant">Manage and review user support requests from developer panel.</p>
+        </div>
     </div>
 
     @if(session('success'))
@@ -28,8 +26,8 @@
                     <thead>
                         <tr class="bg-surface-container-low border-b border-outline-variant">
                             <th class="p-4 text-label-md font-label-md text-on-surface-variant">ID</th>
+                            <th class="p-4 text-label-md font-label-md text-on-surface-variant">User</th>
                             <th class="p-4 text-label-md font-label-md text-on-surface-variant">Subject</th>
-                            <th class="p-4 text-label-md font-label-md text-on-surface-variant">Category</th>
                             <th class="p-4 text-label-md font-label-md text-on-surface-variant">Priority</th>
                             <th class="p-4 text-label-md font-label-md text-on-surface-variant">Status</th>
                             <th class="p-4 text-label-md font-label-md text-on-surface-variant">Created</th>
@@ -40,8 +38,8 @@
                         @foreach($tickets as $ticket)
                             <tr class="hover:bg-surface-container-lowest transition-colors">
                                 <td class="p-4 text-body-md text-on-surface">#{{ $ticket->id }}</td>
+                                <td class="p-4 text-body-md text-on-surface font-semibold">{{ $ticket->user->name }}</td>
                                 <td class="p-4 text-body-md text-on-surface font-semibold">{{ $ticket->subject }}</td>
-                                <td class="p-4 text-body-md text-on-surface">{{ ucfirst($ticket->category) }}</td>
                                 <td class="p-4">
                                     @php
                                         $pColor = match($ticket->priority) {
@@ -66,10 +64,10 @@
                                         {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
                                     </span>
                                 </td>
-                                <td class="p-4 text-body-md text-on-surface-variant">{{ $ticket->created_at->format('M d, Y') }}</td>
+                                <td class="p-4 text-body-md text-on-surface-variant">{{ $ticket->created_at->format('M d, Y H:i') }}</td>
                                 <td class="p-4">
-                                    <a href="{{ route('support.show', $ticket) }}" class="text-primary hover:underline font-semibold flex items-center gap-1">
-                                        View
+                                    <a href="{{ route('developer.tickets.show', $ticket) }}" class="text-primary hover:underline font-semibold flex items-center gap-1">
+                                        Manage
                                         <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
                                     </a>
                                 </td>
@@ -84,11 +82,9 @@
         @else
             <div class="p-12 text-center text-on-surface-variant">
                 <span class="material-symbols-outlined text-[48px] text-outline mb-4">inbox</span>
-                <p class="text-body-lg">You haven't created any support tickets yet.</p>
+                <p class="text-body-lg">No support tickets found.</p>
             </div>
         @endif
     </div>
 </main>
-<!-- Footer -->
-<x-footer class="w-full py-stack-lg mt-auto bg-surface-container-low border-t border-outline-variant" />
 @endsection

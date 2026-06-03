@@ -18,6 +18,7 @@ class Post extends Model
         'slug',
         'content',
         'status',
+        'cover_image',
     ];
 
     // PHP 8.1 Enum eşleştirmesi: Veritabanındaki metni otomatik olarak PostStatus Enum'ına çevirir

@@ -7,10 +7,18 @@ use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
-    public function show()
+    public function show($id = null)
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
+        $authUser = auth()->user();
+        $isOwnProfile = false;
+
+        if ($id && $id != $authUser->id) {
+            $user = \App\Models\User::findOrFail($id);
+        } else {
+            /** @var \App\Models\User $user */
+            $user = $authUser;
+            $isOwnProfile = true;
+        }
 
         // 1. Fetch activities
         $posts = $user->posts()->latest()->limit(5)->get()->map(function ($item) {
@@ -54,6 +62,31 @@ class ProfileController extends Controller
             'core_contributor' => $userAchievements->has('core_contributor') || in_array($user->role->value ?? $user->role, ['admin', 'developer', 'moderator']),
         ];
 
-        return view('profile.show', compact('user', 'activities', 'myTopics', 'streak', 'achievements', 'allAchievements', 'userAchievements'));
+        return view('profile.show', compact('user', 'activities', 'myTopics', 'streak', 'achievements', 'allAchievements', 'userAchievements', 'isOwnProfile'));
+    }
+
+    public function updateImages(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+        ]);
+
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
+
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->avatar = '/storage/' . $path;
+        }
+
+        if ($request->hasFile('cover_image')) {
+            $path = $request->file('cover_image')->store('covers', 'public');
+            $user->cover_image = '/storage/' . $path;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profile images updated successfully.');
     }
 }

@@ -6,6 +6,7 @@ use App\Models\SupportTicket;
 use App\Models\TicketReply;
 use App\Support\DTOs\CreateTicketDTO;
 use App\Support\DTOs\CreateTicketReplyDTO;
+use App\Notifications\TicketStatusUpdated;
 use Illuminate\Support\Facades\DB;
 
 class SupportService
@@ -61,7 +62,14 @@ class SupportService
      */
     public function updateStatus(SupportTicket $ticket, string $status): SupportTicket
     {
-        $ticket->update(['status' => $status]);
+        if ($ticket->status !== $status) {
+            $ticket->update(['status' => $status]);
+            
+            if ($ticket->user) {
+                $ticket->user->notify(new TicketStatusUpdated($ticket, $status));
+            }
+        }
+        
         return $ticket;
     }
 }

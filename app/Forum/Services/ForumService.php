@@ -40,9 +40,9 @@ class ForumService extends BaseService
     /**
      * Tüm forum konularını getirir.
      */
-    public function getAllTopics(?string $categorySlug = null): Collection
+    public function getAllTopics(?string $categorySlug = null, ?string $search = null): Collection
     {
-        return $this->repository->getAllTopics($categorySlug);
+        return $this->repository->getAllTopics($categorySlug, $search);
     }
 
     public function createTopic(CreateTopicDTO $dto): ForumTopic
